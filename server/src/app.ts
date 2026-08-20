@@ -2,9 +2,14 @@ import path from 'node:path';
 
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
+import { fetch as undiciFetch } from 'undici';
 
+import { TokenManager } from './auth/tokenManager';
 import { config } from './config';
+import { MParticleHttpClient } from './mparticle/httpClient';
+import { RolesApi } from './mparticle/rolesApi';
 import { registerErrorHandler } from './plugins/errorHandler';
+import { registerEnvironmentRoutes } from './routes/environmentRoutes';
 import { registerVaultRoutes } from './routes/vaultRoutes';
 import type { KdfParams } from './vault/vaultFile';
 import { VaultSession } from './vault/vaultSession';
@@ -12,8 +17,12 @@ import { VaultSession } from './vault/vaultSession';
 declare module 'fastify' {
   interface FastifyInstance {
     vault: VaultSession;
+    tokens: TokenManager;
+    rolesApi: RolesApi;
   }
 }
+
+type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
 /** Pino redaction paths — secrets must never reach a log line. */
 const REDACT_PATHS = [
@@ -28,6 +37,8 @@ export interface BuildAppOptions {
   vaultPath?: string;
   idleLockMinutes?: number;
   kdf?: KdfParams;
+  /** Injected in tests; defaults to undici fetch so mocks can intercept. */
+  fetchFn?: FetchLike;
 }
 
 export function buildApp(options: BuildAppOptions = {}) {
@@ -41,12 +52,22 @@ export function buildApp(options: BuildAppOptions = {}) {
           },
   });
 
+  const fetchFn = options.fetchFn ?? (undiciFetch as unknown as FetchLike);
+  const tokens = new TokenManager({ fetchFn });
+
   const vault = new VaultSession({
     vaultPath: options.vaultPath ?? path.join(config.dataDir, 'vault.enc.json'),
     idleLockMinutes: options.idleLockMinutes ?? config.idleLockMinutes,
     kdf: options.kdf,
+    // Locking drops cached bearer tokens along with the credentials.
+    onLock: () => tokens.clear(),
   });
+
+  const rolesApi = new RolesApi(new MParticleHttpClient({ tokens, fetchFn }));
+
   app.decorate('vault', vault);
+  app.decorate('tokens', tokens);
+  app.decorate('rolesApi', rolesApi);
 
   // Any authenticated activity keeps the vault awake.
   app.addHook('onRequest', async () => {
@@ -57,6 +78,7 @@ export function buildApp(options: BuildAppOptions = {}) {
 
   registerErrorHandler(app);
   registerVaultRoutes(app);
+  registerEnvironmentRoutes(app);
 
   app.get('/api/healthz', async () => ({ ok: true, mock: config.mockMparticle }));
 

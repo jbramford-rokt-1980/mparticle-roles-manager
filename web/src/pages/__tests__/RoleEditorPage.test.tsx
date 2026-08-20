@@ -83,4 +83,59 @@ describe('RoleEditorPage', () => {
     expect(core).toBeChecked();
     expect(core).toBeDisabled();
   });
+
+  it('checking full access unchecks the other options in that feature', async () => {
+    givenApi();
+    renderEditor();
+    const user = userEvent.setup();
+    await user.selectOptions(await screen.findByLabelText(/^role$/i), 'ad-sales-analyst');
+
+    const view = await screen.findByRole('checkbox', { name: /audiences — view/i });
+    expect(view).toBeChecked();
+    await user.click(screen.getByRole('checkbox', { name: /audiences — full access/i }));
+    expect(view).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).toBeChecked();
+  });
+
+  it('saves through plan → diff preview → commit', async () => {
+    givenApi();
+    const planResponse = {
+      proposedRoles: [{ role_id: 'brand-new', name: 'Brand New', description: '', tasks: [] }],
+      baseVersion: 4,
+      diff: {
+        created: [{ role_id: 'brand-new', name: 'Brand New', description: '', tasks: ['user:core'] }],
+        deleted: [],
+        modified: [],
+        unchanged: [],
+        summary: { createdCount: 1, modifiedCount: 0, deletedCount: 0, unchangedCount: 2 },
+      },
+      warnings: [],
+    };
+    let committed: Record<string, unknown> | undefined;
+    mswServer.use(
+      http.post('/api/environments/env-1/roles/plan', () => HttpResponse.json(planResponse)),
+      http.post('/api/environments/env-1/roles/commit', async ({ request }) => {
+        committed = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ roles: planResponse.proposedRoles, version: 5 });
+      }),
+    );
+
+    renderEditor();
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: /new role/i }));
+    await user.type(screen.getByLabelText(/^name/i), 'Brand New');
+    await user.type(screen.getByLabelText(/^role id/i), 'brand-new');
+    await user.click(screen.getByRole('button', { name: /review changes/i }));
+
+    // Diff preview shows before anything is written
+    expect(await screen.findByText(/1 created/i)).toBeInTheDocument();
+    expect(committed).toBeUndefined();
+
+    await user.click(screen.getByRole('button', { name: /confirm/i }));
+    await screen.findByText(/saved/i);
+    expect(committed).toEqual({
+      proposedRoles: planResponse.proposedRoles,
+      baseVersion: 4,
+    });
+  });
 });

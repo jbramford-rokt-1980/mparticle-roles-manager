@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import type { EnvironmentConfig } from '@roles/shared';
 
-import { ApiError } from '../../plugins/apiError';
+import type { ApiError } from '../../plugins/apiError';
 import { MParticleHttpClient, type TokenProvider } from '../httpClient';
 
 const env: EnvironmentConfig = {

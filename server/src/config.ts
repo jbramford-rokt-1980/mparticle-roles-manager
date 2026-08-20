@@ -13,7 +13,8 @@ function intFromEnv(name: string, fallback: number): number {
 export const config = {
   /** The proxy must never be reachable off-machine. */
   host: '127.0.0.1',
-  port: intFromEnv('PORT', 8931),
+  // Deliberately NOT plain `PORT` — dev harnesses inject that for the web server.
+  port: intFromEnv('ROLES_PROXY_PORT', 8931),
   dataDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(repoRoot, 'data'),
   idleLockMinutes: intFromEnv('IDLE_LOCK_MINUTES', 30),
   mockMparticle: process.env.MOCK_MPARTICLE === '1',

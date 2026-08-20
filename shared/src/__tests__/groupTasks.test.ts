@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { groupTasks } from '../groupTasks';
+import { groupTasks, groupTasksBySection } from '../groupTasks';
 import type { TaskDef } from '../types';
 
 const tasks: TaskDef[] = [
@@ -83,5 +83,40 @@ describe('groupTasks', () => {
       { task_id: 'audiences:view', display_name: 'Audiences View (custom)', description: '' },
     ]);
     expect(groups[0]?.options[0]?.label).toBe('Audiences View (custom)');
+  });
+});
+
+describe('groupTasksBySection', () => {
+  const task = (id: string): TaskDef => ({ task_id: id, display_name: null, description: null });
+
+  it('orders sections from ingestion through administration, matching the platform', () => {
+    const sections = groupTasksBySection([
+      task('user_management:*'),
+      task('audiences:view'),
+      task('dataingest_connections:view'),
+      task('privacy:*'),
+      task('connections:*'),
+      task('data_plans:view'),
+      task('calculated_attributes:view'),
+    ]);
+    expect(sections.map((s) => s.label)).toEqual([
+      'Data Ingestion',
+      'Connections & Integrations',
+      'Data Platform & Quality',
+      'Identity & Customer 360',
+      'Audiences & Activation',
+      'Oversight & Privacy',
+      'Platform Administration',
+    ]);
+    expect(sections[0]?.groups.map((g) => g.feature)).toEqual(['dataingest_connections']);
+    expect(sections[4]?.groups.map((g) => g.feature)).toEqual(['audiences']);
+    expect(sections[6]?.groups.map((g) => g.feature)).toEqual(['user_management']);
+  });
+
+  it('drops empty sections and collects unknown features under Other', () => {
+    const sections = groupTasksBySection([task('mystery_feature:view')]);
+    expect(sections).toHaveLength(1);
+    expect(sections[0]?.label).toBe('Other');
+    expect(sections[0]?.groups[0]?.feature).toBe('mystery_feature');
   });
 });

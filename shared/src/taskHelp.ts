@@ -99,6 +99,54 @@ export const TASK_DESCRIPTIONS: Record<string, string> = {
 };
 
 /**
+ * Sections mirroring how the mParticle platform is actually organized —
+ * data flows in, gets connected, powers features, and is administered.
+ * Drives the top-level grouping of the permission grid.
+ */
+export const PERMISSION_SECTIONS: ReadonlyArray<{ label: string; features: string[] }> = [
+  {
+    label: 'Data Ingestion',
+    features: ['dataingest_connections', 'dataingest_datamodels'],
+  },
+  {
+    label: 'Connections & Integrations',
+    features: ['connections', 'data_filter'],
+  },
+  {
+    label: 'Data Platform & Quality',
+    features: ['data_plans', 'rules', 'catalog', 'live_stream', 'tieredevents'],
+  },
+  {
+    label: 'Identity & Customer 360',
+    features: ['user_activity', 'calculated_attributes', 'user_groups'],
+  },
+  {
+    label: 'Audiences & Activation',
+    features: [
+      'audiences',
+      'composable_audiences',
+      'journeys',
+      'audience',
+      'audience_resource_restrictions',
+    ],
+  },
+  {
+    label: 'Oversight & Privacy',
+    features: ['privacy', 'observability'],
+  },
+  {
+    label: 'Platform Administration',
+    features: [
+      'workspaces',
+      'user_management',
+      'api_credentials',
+      'identity_settings',
+      'billing_report',
+    ],
+  },
+];
+
+/**
  * Default view-only capabilities bundled into every custom role with no task
  * ids of their own (from the docs): system alerts dashboard, Event Forwarding
  * report, Data Master Catalog view/annotate, Integrations Directory, and

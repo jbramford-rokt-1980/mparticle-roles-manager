@@ -88,7 +88,7 @@ function EnvironmentRow({ env, onEdit }: { env: MaskedEnvironment; onEdit: () =>
           {env.pod.toUpperCase()}
         </span>
         <span className="ml-auto flex gap-2">
-          <Button type="button" variant="ghost" className="px-2 py-1 text-sm" onClick={onEdit}>
+          <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
             Edit
           </Button>
           <DeleteButton id={env.id} />
@@ -125,7 +125,7 @@ function DeleteButton({ id }: { id: string }) {
       <Button
         type="button"
         variant="ghost"
-        className="px-2 py-1 text-sm"
+        size="sm"
         onClick={() => setConfirming(true)}
       >
         Delete
@@ -136,7 +136,7 @@ function DeleteButton({ id }: { id: string }) {
     <Button
       type="button"
       variant="danger"
-      className="px-2 py-1 text-sm"
+      size="sm"
       disabled={del.isPending}
       onClick={() => del.mutate(id)}
     >

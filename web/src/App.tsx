@@ -3,6 +3,7 @@ import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { useLockVault, useVaultStatus } from './api/vault';
 import { ConnectorMark } from './components/ui/ConnectorMark';
 import { EnvironmentsPage } from './pages/EnvironmentsPage';
+import { HistoryPage } from './pages/HistoryPage';
 import { RoleEditorPage } from './pages/RoleEditorPage';
 import { RolesOverviewPage } from './pages/RolesOverviewPage';
 import { UnlockPage } from './pages/UnlockPage';
@@ -25,7 +26,7 @@ export function App() {
             <Route path="/roles" element={<RolesOverviewPage />} />
             <Route path="/roles/editor" element={<RoleEditorPage />} />
             <Route path="/environments" element={<EnvironmentsPage />} />
-            <Route path="/history" element={<Placeholder title="History" />} />
+            <Route path="/history" element={<HistoryPage />} />
           </Routes>
         </main>
       </div>

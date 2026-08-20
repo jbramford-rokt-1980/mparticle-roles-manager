@@ -1,5 +1,5 @@
 import { CORE_TASK } from './limits';
-import { FEATURE_NAMES, TASK_DESCRIPTIONS } from './taskHelp';
+import { FEATURE_NAMES, PERMISSION_SECTIONS, TASK_DESCRIPTIONS } from './taskHelp';
 import type { TaskDef } from './types';
 
 export interface TaskOption extends TaskDef {
@@ -84,4 +84,40 @@ export function groupTasks(tasks: TaskDef[]): TaskGroup[] {
         (a, b) => actionRank(a.action) - actionRank(b.action) || a.action.localeCompare(b.action),
       ),
     }));
+}
+
+export interface TaskSection {
+  label: string;
+  groups: TaskGroup[];
+}
+
+/**
+ * Top-level grouping of the permission grid, ordered the way data moves
+ * through the platform: ingestion → connections → features → admin.
+ * Features outside the known sections land in a trailing "Other" section.
+ */
+export function groupTasksBySection(tasks: TaskDef[]): TaskSection[] {
+  const groups = groupTasks(tasks);
+  const remaining = new Map(groups.map((g) => [g.feature, g]));
+  const sections: TaskSection[] = [];
+
+  for (const section of PERMISSION_SECTIONS) {
+    const sectionGroups: TaskGroup[] = [];
+    for (const feature of section.features) {
+      const group = remaining.get(feature);
+      if (group) {
+        sectionGroups.push(group);
+        remaining.delete(feature);
+      }
+    }
+    if (sectionGroups.length > 0) {
+      sections.push({ label: section.label, groups: sectionGroups });
+    }
+  }
+
+  if (remaining.size > 0) {
+    sections.push({ label: 'Other', groups: [...remaining.values()] });
+  }
+
+  return sections;
 }

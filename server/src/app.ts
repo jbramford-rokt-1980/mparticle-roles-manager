@@ -6,12 +6,14 @@ import { fetch as undiciFetch } from 'undici';
 
 import { TokenManager } from './auth/tokenManager';
 import { config } from './config';
+import { HistoryStore } from './history/historyStore';
 import { MParticleHttpClient } from './mparticle/httpClient';
 import { MockRolesApi } from './mparticle/mockRolesApi';
 import { RateLimiter } from './mparticle/rateLimiter';
 import { RolesApi, type RolesApiLike } from './mparticle/rolesApi';
 import { registerErrorHandler } from './plugins/errorHandler';
 import { registerEnvironmentRoutes } from './routes/environmentRoutes';
+import { registerHistoryRoutes } from './routes/historyRoutes';
 import { registerRolesRoutes } from './routes/rolesRoutes';
 import { registerVaultRoutes } from './routes/vaultRoutes';
 import type { KdfParams } from './vault/vaultFile';
@@ -22,6 +24,7 @@ declare module 'fastify' {
     vault: VaultSession;
     tokens: TokenManager;
     rolesApi: RolesApiLike;
+    history: HistoryStore;
   }
 }
 
@@ -44,6 +47,7 @@ export interface BuildAppOptions {
   fetchFn?: FetchLike;
   /** Serve a seeded in-memory fake instead of the real mParticle API. */
   mockMparticle?: boolean;
+  historyDir?: string;
 }
 
 export function buildApp(options: BuildAppOptions = {}) {
@@ -75,9 +79,14 @@ export function buildApp(options: BuildAppOptions = {}) {
         new MParticleHttpClient({ tokens, fetchFn, rateLimiter: new RateLimiter() }),
       );
 
+  const history = new HistoryStore({
+    dir: options.historyDir ?? path.join(config.dataDir, 'history'),
+  });
+
   app.decorate('vault', vault);
   app.decorate('tokens', tokens);
   app.decorate('rolesApi', rolesApi);
+  app.decorate('history', history);
 
   // Any authenticated activity keeps the vault awake.
   app.addHook('onRequest', async () => {
@@ -90,6 +99,7 @@ export function buildApp(options: BuildAppOptions = {}) {
   registerVaultRoutes(app);
   registerEnvironmentRoutes(app);
   registerRolesRoutes(app);
+  registerHistoryRoutes(app);
 
   app.get('/api/healthz', async () => ({ ok: true, mock }));
 

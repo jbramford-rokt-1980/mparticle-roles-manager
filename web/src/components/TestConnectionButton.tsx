@@ -10,7 +10,7 @@ export function TestConnectionButton({ environmentId }: { environmentId: string 
       <Button
         type="button"
         variant="secondary"
-        className="px-3 py-1.5 text-sm"
+        size="sm"
         disabled={test.isPending}
         onClick={() => test.mutate()}
       >

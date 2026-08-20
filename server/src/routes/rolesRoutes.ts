@@ -37,7 +37,19 @@ export function registerRolesRoutes(app: FastifyInstance): void {
 
   app.get<{ Params: { id: string } }>('/api/environments/:id/manifest', async (req) => {
     const env = findEnvironment(app, req.params.id);
-    return app.rolesApi.getManifest(env);
+    const manifest = await app.rolesApi.getManifest(env);
+    // First-ever fetch for an environment becomes the rollback baseline.
+    if (!(await app.history.hasHistory(env.id))) {
+      await app.history.append(env.id, {
+        action: 'baseline',
+        summary: 'Initial snapshot of the org’s roles',
+        versionBefore: null,
+        versionAfter: manifest.version ?? null,
+        rolesBefore: [],
+        rolesAfter: manifest.roles,
+      });
+    }
+    return manifest;
   });
 
   /**
@@ -87,7 +99,19 @@ export function registerRolesRoutes(app: FastifyInstance): void {
       );
     }
 
-    return app.rolesApi.putManifest(env, proposedRoles, fresh.version);
+    const result = await app.rolesApi.putManifest(env, proposedRoles, fresh.version);
+
+    const summary = diffManifests(fresh.roles, proposedRoles).summary;
+    await app.history.append(env.id, {
+      action: 'commit',
+      summary: `${summary.createdCount} created · ${summary.modifiedCount} modified · ${summary.deletedCount} deleted`,
+      versionBefore: fresh.version ?? null,
+      versionAfter: result.version ?? null,
+      rolesBefore: fresh.roles,
+      rolesAfter: result.roles ?? proposedRoles,
+    });
+
+    return result;
   });
 }
 
@@ -140,6 +164,11 @@ async function applyIntent(
     return manifest.roles.filter((r) => r.role_id !== intent.roleId);
   }
 
-  // restoreSnapshot arrives with the history milestone.
+  if (intent.type === 'restoreSnapshot') {
+    const entry = await app.history.get(env.id, intent.historyEntryId);
+    if (!entry) throw new ApiError('NOT_FOUND', 404, 'Unknown history entry');
+    return entry.rolesAfter;
+  }
+
   throw new ApiError('VALIDATION', 400, `Unsupported intent type`);
 }

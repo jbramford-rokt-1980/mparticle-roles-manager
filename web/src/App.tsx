@@ -3,7 +3,10 @@ import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { useLockVault, useVaultStatus } from './api/vault';
 import { ConnectorMark } from './components/ui/ConnectorMark';
 import { EnvironmentsPage } from './pages/EnvironmentsPage';
+import { RoleEditorPage } from './pages/RoleEditorPage';
+import { RolesOverviewPage } from './pages/RolesOverviewPage';
 import { UnlockPage } from './pages/UnlockPage';
+import { SelectedEnvProvider } from './state/SelectedEnvContext';
 
 export function App() {
   const { data, isLoading, isError, refetch } = useVaultStatus();
@@ -13,17 +16,20 @@ export function App() {
   if (!data || data.status !== 'unlocked') return <UnlockPage />;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <AppHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
-        <Routes>
-          <Route path="/" element={<Navigate to="/roles" replace />} />
-          <Route path="/roles" element={<Placeholder title="Roles" />} />
-          <Route path="/environments" element={<EnvironmentsPage />} />
-          <Route path="/history" element={<Placeholder title="History" />} />
-        </Routes>
-      </main>
-    </div>
+    <SelectedEnvProvider>
+      <div className="flex min-h-screen flex-col">
+        <AppHeader />
+        <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
+          <Routes>
+            <Route path="/" element={<Navigate to="/roles" replace />} />
+            <Route path="/roles" element={<RolesOverviewPage />} />
+            <Route path="/roles/editor" element={<RoleEditorPage />} />
+            <Route path="/environments" element={<EnvironmentsPage />} />
+            <Route path="/history" element={<Placeholder title="History" />} />
+          </Routes>
+        </main>
+      </div>
+    </SelectedEnvProvider>
   );
 }
 

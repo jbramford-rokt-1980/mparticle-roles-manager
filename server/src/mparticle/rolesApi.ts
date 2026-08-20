@@ -1,5 +1,12 @@
 import type { EnvironmentConfig, Manifest, Role, TaskDef } from '@roles/shared';
 
+/** What the routes need from a roles API — satisfied by RolesApi and MockRolesApi. */
+export interface RolesApiLike {
+  getTasks(env: EnvironmentConfig): Promise<TaskDef[]>;
+  getManifest(env: EnvironmentConfig): Promise<Manifest>;
+  putManifest(env: EnvironmentConfig, roles: Role[], version: Manifest['version']): Promise<Manifest>;
+}
+
 /** Minimal surface RolesApi needs from the HTTP client (eases testing). */
 export interface RequestClient {
   request<T>(env: EnvironmentConfig, method: 'GET' | 'PUT', path: string, body?: unknown): Promise<T>;

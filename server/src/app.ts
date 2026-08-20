@@ -7,9 +7,11 @@ import { fetch as undiciFetch } from 'undici';
 import { TokenManager } from './auth/tokenManager';
 import { config } from './config';
 import { MParticleHttpClient } from './mparticle/httpClient';
-import { RolesApi } from './mparticle/rolesApi';
+import { MockRolesApi } from './mparticle/mockRolesApi';
+import { RolesApi, type RolesApiLike } from './mparticle/rolesApi';
 import { registerErrorHandler } from './plugins/errorHandler';
 import { registerEnvironmentRoutes } from './routes/environmentRoutes';
+import { registerRolesRoutes } from './routes/rolesRoutes';
 import { registerVaultRoutes } from './routes/vaultRoutes';
 import type { KdfParams } from './vault/vaultFile';
 import { VaultSession } from './vault/vaultSession';
@@ -18,7 +20,7 @@ declare module 'fastify' {
   interface FastifyInstance {
     vault: VaultSession;
     tokens: TokenManager;
-    rolesApi: RolesApi;
+    rolesApi: RolesApiLike;
   }
 }
 
@@ -39,6 +41,8 @@ export interface BuildAppOptions {
   kdf?: KdfParams;
   /** Injected in tests; defaults to undici fetch so mocks can intercept. */
   fetchFn?: FetchLike;
+  /** Serve a seeded in-memory fake instead of the real mParticle API. */
+  mockMparticle?: boolean;
 }
 
 export function buildApp(options: BuildAppOptions = {}) {
@@ -63,7 +67,10 @@ export function buildApp(options: BuildAppOptions = {}) {
     onLock: () => tokens.clear(),
   });
 
-  const rolesApi = new RolesApi(new MParticleHttpClient({ tokens, fetchFn }));
+  const mock = options.mockMparticle ?? config.mockMparticle;
+  const rolesApi: RolesApiLike = mock
+    ? new MockRolesApi()
+    : new RolesApi(new MParticleHttpClient({ tokens, fetchFn }));
 
   app.decorate('vault', vault);
   app.decorate('tokens', tokens);
@@ -79,8 +86,9 @@ export function buildApp(options: BuildAppOptions = {}) {
   registerErrorHandler(app);
   registerVaultRoutes(app);
   registerEnvironmentRoutes(app);
+  registerRolesRoutes(app);
 
-  app.get('/api/healthz', async () => ({ ok: true, mock: config.mockMparticle }));
+  app.get('/api/healthz', async () => ({ ok: true, mock }));
 
   return app;
 }

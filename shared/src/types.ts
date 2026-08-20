@@ -30,11 +30,15 @@ export interface Manifest {
   version?: number | string;
 }
 
-/** One assignable permission from GET /tasks. */
+/**
+ * One assignable permission from GET /tasks.
+ * The live API returns null display_name/description (verified against a
+ * real org), so consumers must be able to label tasks from the id alone.
+ */
 export interface TaskDef {
   task_id: string;
-  display_name: string;
-  description: string;
+  display_name: string | null;
+  description: string | null;
 }
 
 /** A saved customer environment, as stored (decrypted) in the vault. */

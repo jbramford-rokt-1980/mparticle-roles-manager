@@ -1,0 +1,15 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# Runtime data — encrypted vault and history live here. Never commit.
+data/
+
+# Local environment config (ports etc). Secrets belong in the vault, not env files.
+.env
+.env.local
+
+# OS / editor noise
+.DS_Store
+*.log

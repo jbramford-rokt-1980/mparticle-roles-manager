@@ -1,0 +1,22 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+function intFromEnv(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return fallback;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+}
+
+export const config = {
+  /** The proxy must never be reachable off-machine. */
+  host: '127.0.0.1',
+  port: intFromEnv('PORT', 8931),
+  dataDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(repoRoot, 'data'),
+  idleLockMinutes: intFromEnv('IDLE_LOCK_MINUTES', 30),
+  mockMparticle: process.env.MOCK_MPARTICLE === '1',
+  /** Origins allowed to call the proxy (the Vite dev server). */
+  corsOrigins: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+} as const;

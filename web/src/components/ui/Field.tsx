@@ -1,15 +1,20 @@
 import type { InputHTMLAttributes } from 'react';
 import { useId } from 'react';
 
+import { fieldClasses } from './controlStyles';
+import { FieldFooter, type CharacterCount } from './FieldFooter';
+
 export interface FieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   hint?: string;
   error?: string;
+  count?: CharacterCount;
 }
 
-export function Field({ label, hint, error, className = '', ...rest }: FieldProps) {
+export function Field({ label, hint, error, count, className = '', ...rest }: FieldProps) {
   const id = useId();
-  const hintId = `${id}-hint`;
+  const footerId = `${id}-footer`;
+  const over = count ? count.current > count.max : false;
   return (
     <div className={className}>
       <label
@@ -20,16 +25,14 @@ export function Field({ label, hint, error, className = '', ...rest }: FieldProp
       </label>
       <input
         id={id}
-        aria-describedby={hint || error ? hintId : undefined}
-        aria-invalid={error ? true : undefined}
-        className="w-full border border-black/25 bg-white px-3.5 py-2.5 text-[15px] outline-none transition-colors placeholder:text-black/30 focus:border-beetroot"
+        aria-describedby={hint || error || count ? footerId : undefined}
+        aria-invalid={error || over ? true : undefined}
+        className={`w-full placeholder:text-black/30 ${fieldClasses()} ${
+          error || over ? 'border-beetroot' : ''
+        }`}
         {...rest}
       />
-      {(error ?? hint) && (
-        <p id={hintId} className={`mt-1.5 text-sm ${error ? 'text-beetroot' : 'text-black/50'}`}>
-          {error ?? hint}
-        </p>
-      )}
+      <FieldFooter id={footerId} hint={hint} error={error} count={count} />
     </div>
   );
 }

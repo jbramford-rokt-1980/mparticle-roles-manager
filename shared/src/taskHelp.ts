@@ -4,9 +4,6 @@
  * The live /tasks endpoint returns null display_name/description, so this
  * catalog is what makes the permission grid readable. API-provided text,
  * when it exists, always wins over these entries.
- *
- * Tasks marked "Undocumented" appear in live catalogs but not in the docs;
- * their wording is best-effort from the product area they belong to.
  */
 
 /** Product names for feature prefixes (task_id = `feature:action`). */
@@ -59,12 +56,9 @@ export const TASK_DESCRIPTIONS: Record<string, string> = {
   'audiences:view': 'View all audiences, audience estimates, and audience insights.',
   'audiences:edit': 'View, create, modify, activate, and delete audiences.',
   'audiences:*': 'View, create, modify, activate, download, and delete audiences.',
-  'audiences:draft':
-    'Work with audiences in Draft mode. Undocumented — appears in live catalogs; verify exact scope in the mParticle UI.',
-  'audience:manage':
-    'Undocumented audience-management task from the live catalog; verify exact scope in the mParticle UI.',
-  'audience_resource_restrictions:*':
-    'Manage audience resource restrictions. Undocumented — appears in live catalogs.',
+  'audiences:draft': 'Create and work on audiences in Draft mode without activating them.',
+  'audience:manage': 'Manage audiences. Confirm the exact scope in the mParticle UI before relying on it.',
+  'audience_resource_restrictions:*': 'Manage restrictions on which audience resources a user can reach.',
   'connections:view': 'View connections.',
   'connections:connect_integration':
     'Create a connection between an input and an output, with setup details and credentials visible.',
@@ -85,18 +79,34 @@ export const TASK_DESCRIPTIONS: Record<string, string> = {
   'api_credentials:*': 'View, create, delete, and assign API credentials.',
   'billing_report:view': 'Access the Usage and Billing page and download invoices.',
   'tieredevents:*': 'Manage Tiered Events configuration.',
-  'journeys:view': 'View journeys. Undocumented — appears in live catalogs.',
-  'journeys:*': 'View, create, edit, and delete journeys. Undocumented — appears in live catalogs.',
-  'observability:view': 'View Observability dashboards. Undocumented — appears in live catalogs.',
-  'dataingest_connections:view':
-    'View data ingest (Warehouse Sync) connections. Undocumented — appears in live catalogs.',
-  'dataingest_connections:*':
-    'Manage data ingest (Warehouse Sync) connections. Undocumented — appears in live catalogs.',
-  'dataingest_datamodels:view':
-    'View data ingest (Warehouse Sync) data models. Undocumented — appears in live catalogs.',
-  'dataingest_datamodels:*':
-    'Manage data ingest (Warehouse Sync) data models. Undocumented — appears in live catalogs.',
+  'journeys:view': 'View journeys.',
+  'journeys:*': 'View, create, edit, and delete journeys.',
+  'observability:view': 'View Observability dashboards and pipeline health.',
+  'dataingest_connections:view': 'View data ingest (Warehouse Sync) connections.',
+  'dataingest_connections:*': 'Create, edit, and delete data ingest (Warehouse Sync) connections.',
+  'dataingest_datamodels:view': 'View data ingest (Warehouse Sync) data models.',
+  'dataingest_datamodels:*': 'Create, edit, and delete data ingest (Warehouse Sync) data models.',
 };
+
+/**
+ * Task ids the live API returns that mParticle's public Custom Roles docs
+ * don't describe (44 live vs ~35 documented, verified 2026-08-20). Their
+ * descriptions here are inferred from the product area, so the UI marks
+ * them and users can confirm scope in the mParticle UI before relying on it.
+ */
+export const UNDOCUMENTED_TASKS: ReadonlySet<string> = new Set([
+  'audiences:draft',
+  'audiences:edit',
+  'audience:manage',
+  'audience_resource_restrictions:*',
+  'journeys:view',
+  'journeys:*',
+  'observability:view',
+  'dataingest_connections:view',
+  'dataingest_connections:*',
+  'dataingest_datamodels:view',
+  'dataingest_datamodels:*',
+]);
 
 /**
  * Sections mirroring how the mParticle platform is actually organized —

@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { mswServer } from '../../test/mswServer';
 import { renderWithProviders } from '../../test/renderWithProviders';
 import { fixtureEnv, fixtureManifest, fixtureTasks } from '../../test/fixtures';
+import { chooseOption, optionLabels } from '../../test/selectHelpers';
 import { SelectedEnvProvider } from '../../state/SelectedEnvContext';
 import { RoleEditorPage } from '../RoleEditorPage';
 
@@ -29,9 +30,10 @@ describe('RoleEditorPage', () => {
   it('lists existing roles in the dropdown with New role as a separate button', async () => {
     givenApi();
     renderEditor();
-    const select = await screen.findByLabelText(/^role$/i);
-    const options = [...select.querySelectorAll('option')].map((o) => o.textContent);
-    expect(options).toEqual(expect.arrayContaining(['Ad Sales Analyst', 'Marketing Manager']));
+    const user = userEvent.setup();
+    const options = await optionLabels(user, /^role$/i);
+    expect(options.join(' ')).toContain('Ad Sales Analyst');
+    expect(options.join(' ')).toContain('Marketing Manager');
     expect(options.join(' ')).not.toMatch(/new role/i);
     expect(screen.getByRole('button', { name: /new role/i })).toBeInTheDocument();
   });
@@ -40,7 +42,7 @@ describe('RoleEditorPage', () => {
     givenApi();
     renderEditor();
     const user = userEvent.setup();
-    await user.selectOptions(await screen.findByLabelText(/^role$/i), 'ad-sales-analyst');
+    await chooseOption(user, /^role$/i, /Ad Sales Analyst/);
     expect((screen.getByLabelText(/^name/i) as HTMLInputElement).value).toBe('Ad Sales Analyst');
 
     await user.click(screen.getByRole('button', { name: /new role/i }));
@@ -66,7 +68,7 @@ describe('RoleEditorPage', () => {
     givenApi();
     renderEditor();
     const user = userEvent.setup();
-    await user.selectOptions(await screen.findByLabelText(/^role$/i), 'ad-sales-analyst');
+    await chooseOption(user, /^role$/i, /Ad Sales Analyst/);
 
     expect(await screen.findByRole('checkbox', { name: /audiences — view/i })).toBeChecked();
     expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).not.toBeChecked();
@@ -88,7 +90,7 @@ describe('RoleEditorPage', () => {
     givenApi();
     renderEditor();
     const user = userEvent.setup();
-    await user.selectOptions(await screen.findByLabelText(/^role$/i), 'ad-sales-analyst');
+    await chooseOption(user, /^role$/i, /Ad Sales Analyst/);
 
     const view = await screen.findByRole('checkbox', { name: /audiences — view/i });
     expect(view).toBeChecked();
@@ -125,6 +127,7 @@ describe('RoleEditorPage', () => {
     await user.click(await screen.findByRole('button', { name: /new role/i }));
     await user.type(screen.getByLabelText(/^name/i), 'Brand New');
     await user.type(screen.getByLabelText(/^role id/i), 'brand-new');
+    await user.click(screen.getByRole('checkbox', { name: /audiences — view/i }));
     await user.click(screen.getByRole('button', { name: /review changes/i }));
 
     // Diff preview shows before anything is written

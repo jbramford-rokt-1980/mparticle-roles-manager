@@ -20,7 +20,9 @@ import { PermissionGrid } from '../components/PermissionGrid';
 import { RoleGrantsSummary } from '../components/RoleGrantsSummary';
 import { NEW_ROLE_VALUE, RoleSelect } from '../components/RoleSelect';
 import { Button } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
 import { Field } from '../components/ui/Field';
+import { TextareaField } from '../components/ui/TextareaField';
 import { useSelectedEnv } from '../state/SelectedEnvContext';
 
 export function RoleEditorPage() {
@@ -74,8 +76,10 @@ export function RoleEditorPage() {
 
   const errors = useMemo(() => {
     if (!manifest) return [];
+    const others = manifest.roles.filter((r) => r.role_id !== activeRole?.role_id);
     return validateRole(buildRole(), {
       existingRoleIds: creating ? new Set(manifest.roles.map((r) => r.role_id)) : new Set(),
+      existingNames: new Set(others.map((r) => r.name.trim().toLowerCase())),
       validTaskIds: tasks ? new Set(tasks.map((t) => t.task_id)) : undefined,
       totalRolesAfter: creating ? manifest.roles.length + 1 : manifest.roles.length,
     });
@@ -150,16 +154,12 @@ export function RoleEditorPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-medium">Role editor</h1>
-          <p className="mt-1 text-black/60">
-            Pick an existing role to see exactly what it grants, or start a new one. Nothing is
-            written until you confirm a reviewed diff.
-          </p>
-        </div>
-        <EnvSwitcher />
-      </div>
+      <PageHeader
+        eyebrow="Editor"
+        title="Role editor"
+        description="Pick an existing role to see exactly what it grants, or start a new one. Nothing is written to the organization until you confirm a reviewed diff."
+        actions={<EnvSwitcher />}
+      />
 
       {manifest && tasks && (
         <div className="mt-8 space-y-8">
@@ -177,8 +177,7 @@ export function RoleEditorPage() {
               label="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              maxLength={NAME_MAX}
-              hint={`${name.length}/${NAME_MAX}`}
+              count={{ current: name.trim().length, max: NAME_MAX }}
               error={fieldError('name')}
             />
             <Field
@@ -186,21 +185,20 @@ export function RoleEditorPage() {
               value={creating ? roleId : (activeRole?.role_id ?? '')}
               onChange={(e) => setRoleId(e.target.value)}
               readOnly={!creating}
-              maxLength={ROLE_ID_MAX}
+              count={creating ? { current: roleId.trim().length, max: ROLE_ID_MAX } : undefined}
               hint={
                 creating
-                  ? `${roleId.length}/${ROLE_ID_MAX} — permanent identifier`
+                  ? 'Permanent identifier — letters, numbers, dots, dashes, underscores'
                   : 'Immutable — changing it would delete and recreate the role'
               }
               error={fieldError('role_id')}
             />
-            <Field
+            <TextareaField
               label="Description"
               className="sm:col-span-2"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              maxLength={DESCRIPTION_MAX}
-              hint={`${description.length}/${DESCRIPTION_MAX}`}
+              count={{ current: description.trim().length, max: DESCRIPTION_MAX }}
               error={fieldError('description')}
             />
           </div>

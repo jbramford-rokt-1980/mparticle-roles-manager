@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { useSelectedEnv } from '../state/SelectedEnvContext';
+import { Select } from './ui/Select';
 
 export function EnvSwitcher() {
   const { environments, selected, setSelectedId } = useSelectedEnv();
@@ -14,21 +15,18 @@ export function EnvSwitcher() {
   }
 
   return (
-    <label className="flex items-center gap-2">
-      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-black/50">
-        Environment
-      </span>
-      <select
-        value={selected?.id ?? ''}
-        onChange={(e) => setSelectedId(e.target.value)}
-        className="border border-black/25 bg-white px-3 py-1.5 text-sm outline-none focus:border-beetroot"
-      >
-        {environments.map((env) => (
-          <option key={env.id} value={env.id}>
-            {env.label} ({env.pod.toUpperCase()})
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      label="Environment"
+      inlineLabel
+      size="sm"
+      value={selected?.id ?? ''}
+      onChange={setSelectedId}
+      className="min-w-64"
+      options={environments.map((env) => ({
+        value: env.id,
+        label: env.label,
+        detail: `${env.pod.toUpperCase()} · org ${env.orgId}`,
+      }))}
+    />
   );
 }

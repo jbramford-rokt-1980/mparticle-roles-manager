@@ -4,6 +4,7 @@ import { MAX_ROLES_PER_ORG, type Manifest } from '@roles/shared';
 
 import { useManifest } from '../api/roles';
 import { EnvSwitcher } from '../components/EnvSwitcher';
+import { PageHeader } from '../components/ui/PageHeader';
 import { useSelectedEnv } from '../state/SelectedEnvContext';
 
 export function RolesOverviewPage() {
@@ -12,15 +13,12 @@ export function RolesOverviewPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-medium">Roles</h1>
-          <p className="mt-1 text-black/60">
-            Every custom role in the org — click one to inspect or edit it.
-          </p>
-        </div>
-        <EnvSwitcher />
-      </div>
+      <PageHeader
+        eyebrow="Overview"
+        title="Roles"
+        description="Every custom role in this organization — open one to see exactly what it grants."
+        actions={<EnvSwitcher />}
+      />
 
       {!envsLoading && environments.length === 0 && (
         <div className="mt-10 border border-dashed border-black/25 px-6 py-10 text-center text-black/60">

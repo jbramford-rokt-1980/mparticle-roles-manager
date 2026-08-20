@@ -6,6 +6,7 @@ import { usePlanRoles, useCommitRoles, type PlanResult } from '../api/mutations'
 import { DiffPreviewModal } from '../components/DiffPreviewModal';
 import { EnvSwitcher } from '../components/EnvSwitcher';
 import { Button } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
 import { useSelectedEnv } from '../state/SelectedEnvContext';
 
 export function HistoryPage() {
@@ -37,16 +38,12 @@ export function HistoryPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-medium">History</h1>
-          <p className="mt-1 text-black/60">
-            Every change this app has written for the selected environment, plus the org&apos;s
-            starting state. Restore rolls back through the same diff-review gate.
-          </p>
-        </div>
-        <EnvSwitcher />
-      </div>
+      <PageHeader
+        eyebrow="Audit"
+        title="History"
+        description="Every change this app has written for the selected environment, plus the organization's starting state. Restoring rolls back through the same diff-review gate."
+        actions={<EnvSwitcher />}
+      />
 
       {restoredNote && (
         <p className="mt-6 border border-black/15 bg-wine-tint/60 px-4 py-3 text-sm">

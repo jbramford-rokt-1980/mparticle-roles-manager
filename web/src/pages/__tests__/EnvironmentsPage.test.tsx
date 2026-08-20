@@ -7,6 +7,7 @@ import type { MaskedEnvironment } from '@roles/shared';
 
 import { mswServer } from '../../test/mswServer';
 import { renderWithProviders } from '../../test/renderWithProviders';
+import { chooseOption } from '../../test/selectHelpers';
 import { EnvironmentsPage } from '../EnvironmentsPage';
 
 const demoEnv: MaskedEnvironment = {
@@ -48,7 +49,7 @@ describe('EnvironmentsPage', () => {
 
     await user.click(await screen.findByRole('button', { name: /add environment/i }));
     await user.type(screen.getByLabelText(/label/i), 'King US1');
-    await user.selectOptions(screen.getByLabelText(/pod/i), 'us1');
+    await chooseOption(user, /pod/i, /US1/);
     await user.type(screen.getByLabelText(/org id/i), '77');
     await user.type(screen.getByLabelText(/account id/i), '88');
     await user.type(screen.getByLabelText(/client id/i), 'cid-1');

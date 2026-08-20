@@ -40,10 +40,13 @@ export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: P
         </label>
       </div>
 
-      {sections.map((section) => (
-        <section key={section.label} className="mt-8 first-of-type:mt-5">
-          <div className="flex items-center gap-3">
-            <h3 className="shrink-0 font-medium">{section.label}</h3>
+      {sections.map((section, index) => (
+        <section key={section.label} className="mt-10 first-of-type:mt-8">
+          <div className="flex items-baseline gap-3">
+            <span className="font-mono text-[11px] tracking-[0.18em] text-beetroot">
+              {String(index + 1).padStart(3, '0')}
+            </span>
+            <h3 className="shrink-0 font-medium tracking-tight">{section.label}</h3>
             <span className="h-px w-full bg-black/15" role="presentation" />
           </div>
           <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -68,6 +71,14 @@ export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: P
                         <span className="ml-2 font-mono text-[11px] text-black/40">
                           {option.task_id}
                         </span>
+                        {option.undocumented && (
+                          <span
+                            title="This permission exists in the API but mParticle has not published a description for it. The wording here is inferred — confirm the exact scope in the mParticle UI."
+                            className="ml-2 cursor-help border border-black/20 px-1.5 py-0.5 align-middle font-mono text-[9px] uppercase tracking-[0.14em] text-black/45"
+                          >
+                            unverified
+                          </span>
+                        )}
                         {option.help && (
                           <span className="block text-sm text-black/55">{option.help}</span>
                         )}

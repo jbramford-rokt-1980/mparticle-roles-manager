@@ -1,5 +1,10 @@
 import { CORE_TASK } from './limits';
-import { FEATURE_NAMES, PERMISSION_SECTIONS, TASK_DESCRIPTIONS } from './taskHelp';
+import {
+  FEATURE_NAMES,
+  PERMISSION_SECTIONS,
+  TASK_DESCRIPTIONS,
+  UNDOCUMENTED_TASKS,
+} from './taskHelp';
 import type { TaskDef } from './types';
 
 export interface TaskOption extends TaskDef {
@@ -9,6 +14,8 @@ export interface TaskOption extends TaskDef {
   label: string;
   /** What this grants: API description, else curated docs text. */
   help?: string;
+  /** True when mParticle's public docs don't describe this permission. */
+  undocumented: boolean;
 }
 
 export interface TaskGroup {
@@ -71,7 +78,13 @@ export function groupTasks(tasks: TaskDef[]): TaskGroup[] {
     const options = byFeature.get(feature) ?? [];
     const label = task.display_name || `${featureName(feature)} — ${actionLabel(action)}`;
     const help = task.description ?? TASK_DESCRIPTIONS[task.task_id];
-    options.push({ ...task, action, label, ...(help !== undefined ? { help } : {}) });
+    options.push({
+      ...task,
+      action,
+      label,
+      undocumented: UNDOCUMENTED_TASKS.has(task.task_id),
+      ...(help !== undefined ? { help } : {}),
+    });
     byFeature.set(feature, options);
   }
 

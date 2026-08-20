@@ -11,6 +11,7 @@ import {
 import { EnvironmentForm } from '../components/EnvironmentForm';
 import { TestConnectionButton } from '../components/TestConnectionButton';
 import { Button } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
 
 export function EnvironmentsPage() {
   const { data: environments, isLoading } = useEnvironments();
@@ -24,19 +25,18 @@ export function EnvironmentsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-medium">Environments</h1>
-          <p className="mt-1 text-black/60">
-            One entry per customer org — credentials stay encrypted in your vault.
-          </p>
-        </div>
-        {!adding && (
-          <Button type="button" onClick={() => setAdding(true)}>
-            Add environment
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Setup"
+        title="Environments"
+        description="One entry per customer organization. Credentials stay encrypted in your vault and never reach the browser."
+        actions={
+          !adding && (
+            <Button type="button" onClick={() => setAdding(true)}>
+              Add environment
+            </Button>
+          )
+        }
+      />
 
       {adding && (
         <div className="mt-8">

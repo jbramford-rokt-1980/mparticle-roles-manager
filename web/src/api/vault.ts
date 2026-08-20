@@ -38,6 +38,15 @@ export function useLockVault() {
   return useMutation({
     mutationFn: () =>
       apiRequest<{ status: VaultStatus }>('/api/vault/lock', { method: 'POST', body: '{}' }),
-    onSuccess: () => queryClient.clear(),
+    onSuccess: (result) => {
+      // Flip the UI to locked straight away, then drop every cached response
+      // that came from the customer's org. Clearing the whole cache instead
+      // would remove the status query itself and leave the app on the last
+      // screen until something happened to refetch it.
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== 'vault',
+      });
+      queryClient.setQueryData(STATUS_KEY, result);
+    },
   });
 }

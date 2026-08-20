@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
@@ -24,6 +25,28 @@ describe('App', () => {
     );
     renderWithProviders(<App />);
     expect(await screen.findByRole('heading', { name: /unlock/i })).toBeInTheDocument();
+  });
+
+  it('returns to the unlock screen immediately after Lock vault is clicked', async () => {
+    const { fixtureEnv, fixtureManifest } = await import('../test/fixtures');
+    let locked = false;
+    mswServer.use(
+      http.get('/api/vault/status', () =>
+        HttpResponse.json({ status: locked ? 'locked' : 'unlocked' }),
+      ),
+      http.get('/api/environments', () => HttpResponse.json([fixtureEnv])),
+      http.get('/api/environments/env-1/manifest', () => HttpResponse.json(fixtureManifest)),
+      http.post('/api/vault/lock', () => {
+        locked = true;
+        return HttpResponse.json({ status: 'locked' });
+      }),
+    );
+
+    renderWithProviders(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: /lock vault/i }));
+
+    expect(await screen.findByRole('heading', { name: /^unlock$/i })).toBeInTheDocument();
   });
 
   it('returns to the unlock screen when the vault locks mid-session (idle auto-lock)', async () => {

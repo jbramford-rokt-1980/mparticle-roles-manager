@@ -1,8 +1,7 @@
-import { useId } from 'react';
-
 import type { Role } from '@roles/shared';
 
 import { Button } from './ui/Button';
+import { Select } from './ui/Select';
 
 export const NEW_ROLE_VALUE = '__new__';
 
@@ -19,47 +18,30 @@ export interface RoleSelectProps {
  * the dropdown is replaced by an empty-state message.
  */
 export function RoleSelect({ roles, value, onChange }: RoleSelectProps) {
-  const id = useId();
   const creating = value === NEW_ROLE_VALUE;
+  const options = [...roles]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((role) => ({
+      value: role.role_id,
+      label: role.name,
+      detail: role.role_id,
+    }));
 
   return (
     <div className="flex flex-wrap items-end gap-4">
       {roles.length > 0 ? (
-        <div>
-          <label
-            htmlFor={id}
-            className="mb-1.5 block font-mono text-[11px] uppercase tracking-[0.18em] text-black/60"
-          >
-            Role
-          </label>
-          <select
-            id={id}
-            value={creating ? '' : value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-auto min-w-56 border border-black/25 bg-white px-3.5 py-2.5 pr-9 text-[15px] outline-none focus:border-beetroot"
-          >
-            {creating && (
-              <option value="" disabled>
-                Select a role…
-              </option>
-            )}
-            {[...roles]
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((role) => (
-                <option key={role.role_id} value={role.role_id}>
-                  {role.name}
-                </option>
-              ))}
-          </select>
-        </div>
+        <Select
+          label="Role"
+          value={creating ? '' : value}
+          options={options}
+          onChange={onChange}
+          placeholder="Select a role…"
+          className="w-full max-w-xs"
+        />
       ) : (
         <p className="text-black/60">No custom roles in this org yet — create the first one.</p>
       )}
-      <Button
-        type="button"
-        variant={creating ? 'primary' : 'secondary'}
-        onClick={() => onChange(NEW_ROLE_VALUE)}
-      >
+      <Button type="button" onClick={() => onChange(NEW_ROLE_VALUE)}>
         New role
       </Button>
     </div>

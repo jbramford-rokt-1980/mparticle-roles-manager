@@ -6,6 +6,7 @@ import { PODS, POD_IDS } from '@roles/shared';
 
 import { Button } from './ui/Button';
 import { Field } from './ui/Field';
+import { Select } from './ui/Select';
 
 export interface EnvironmentFormProps {
   /** When set, the form edits this environment; otherwise it creates one. */
@@ -36,8 +37,6 @@ export function EnvironmentForm({ existing, onSubmit, onCancel, submitting }: En
     onSubmit(input);
   };
 
-  const podSelectId = 'environment-pod';
-
   return (
     <form onSubmit={handleSubmit} className="border border-black/15 bg-wine-tint/40 p-6">
       <h2 className="text-xl font-medium">
@@ -51,29 +50,17 @@ export function EnvironmentForm({ existing, onSubmit, onCancel, submitting }: En
           onChange={(e) => setLabel(e.target.value)}
           placeholder="Customer name + pod"
         />
-        <div>
-          <label
-            htmlFor={podSelectId}
-            className="mb-1.5 block font-mono text-[11px] uppercase tracking-[0.18em] text-black/60"
-          >
-            Pod
-          </label>
-          <select
-            id={podSelectId}
-            value={pod}
-            onChange={(e) => setPod(e.target.value as PodId)}
-            className="w-full border border-black/25 bg-white px-3.5 py-2.5 text-[15px] outline-none focus:border-beetroot"
-          >
-            {POD_IDS.map((id) => (
-              <option key={id} value={id}>
-                {PODS[id].label}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1.5 text-sm text-black/50">
-            Only changes the API host — check which pod the customer&apos;s dashboard runs on
-          </p>
-        </div>
+        <Select
+          label="Pod"
+          value={pod}
+          onChange={(next) => setPod(next as PodId)}
+          hint="Only changes the API host — check which pod the customer's dashboard runs on"
+          options={POD_IDS.map((id) => ({
+            value: id,
+            label: PODS[id].label,
+            detail: PODS[id].apiBase.replace('https://', ''),
+          }))}
+        />
         <Field
           label="Org ID"
           required

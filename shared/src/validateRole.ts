@@ -10,11 +10,19 @@ export interface RoleValidationError {
 export interface RoleValidationContext {
   /** role_ids already in the manifest, excluding the role being edited. */
   existingRoleIds: ReadonlySet<string>;
+  /** Lowercased names of other roles; mParticle returns 409 on duplicates. */
+  existingNames?: ReadonlySet<string>;
   /** Known task_ids from the live catalog; undefined skips task validation. */
   validTaskIds?: ReadonlySet<string>;
   /** How many roles the manifest would contain after this change. */
   totalRolesAfter: number;
 }
+
+/**
+ * mParticle rejects ids with "restricted characters" without enumerating
+ * them, so this stays conservative: the set that is known to work.
+ */
+const ROLE_ID_PATTERN = /^[A-Za-z0-9._-]+$/;
 
 /**
  * Client- and server-shared validation against the API's documented limits.
@@ -30,13 +38,29 @@ export function validateRole(role: Role, context: RoleValidationContext): RoleVa
   if (!name) {
     errors.push({ field: 'name', message: 'Name is required' });
   } else if (name.length > NAME_MAX) {
-    errors.push({ field: 'name', message: `Name must be at most ${NAME_MAX} characters` });
+    errors.push({
+      field: 'name',
+      message: `Name is ${name.length} characters — the limit is ${NAME_MAX}`,
+    });
+  } else if (context.existingNames?.has(name.toLowerCase())) {
+    errors.push({
+      field: 'name',
+      message: `A role named "${name}" already exists in this org`,
+    });
   }
 
   if (!roleId) {
     errors.push({ field: 'role_id', message: 'Role ID is required' });
   } else if (roleId.length > ROLE_ID_MAX) {
-    errors.push({ field: 'role_id', message: `Role ID must be at most ${ROLE_ID_MAX} characters` });
+    errors.push({
+      field: 'role_id',
+      message: `Role ID is ${roleId.length} characters — the limit is ${ROLE_ID_MAX}`,
+    });
+  } else if (!ROLE_ID_PATTERN.test(roleId)) {
+    errors.push({
+      field: 'role_id',
+      message: 'Role ID can only use letters, numbers, dots, dashes, and underscores',
+    });
   } else if (context.existingRoleIds.has(roleId)) {
     errors.push({ field: 'role_id', message: `A role with ID "${roleId}" already exists` });
   }
@@ -44,16 +68,26 @@ export function validateRole(role: Role, context: RoleValidationContext): RoleVa
   if (description.length > DESCRIPTION_MAX) {
     errors.push({
       field: 'description',
-      message: `Description must be at most ${DESCRIPTION_MAX} characters`,
+      message: `Description is ${description.length} characters — the limit is ${DESCRIPTION_MAX}`,
+    });
+  }
+
+  const grantedTasks = role.tasks.map((t) => t.task_id).filter((id) => id !== CORE_TASK);
+
+  if (grantedTasks.length === 0) {
+    errors.push({
+      field: 'tasks',
+      message: 'Select at least one permission — a role with only core access can just log in',
     });
   }
 
   if (context.validTaskIds) {
-    const unknown = role.tasks
-      .map((t) => t.task_id)
-      .filter((id) => id !== CORE_TASK && !context.validTaskIds?.has(id));
+    const unknown = grantedTasks.filter((id) => !context.validTaskIds?.has(id));
     if (unknown.length > 0) {
-      errors.push({ field: 'tasks', message: `Unknown permission task ids: ${unknown.join(', ')}` });
+      errors.push({
+        field: 'tasks',
+        message: `These permissions do not exist in this org: ${unknown.join(', ')}`,
+      });
     }
   }
 

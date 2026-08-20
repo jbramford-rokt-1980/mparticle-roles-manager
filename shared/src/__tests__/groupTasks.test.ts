@@ -86,6 +86,25 @@ describe('groupTasks', () => {
   });
 });
 
+describe('undocumented tasks', () => {
+  it('flags tasks that the live API returns but mParticle has not documented', () => {
+    const groups = groupTasks([
+      { task_id: 'journeys:*', display_name: null, description: null },
+      { task_id: 'audiences:view', display_name: null, description: null },
+    ]);
+    const options = groups.flatMap((g) => g.options);
+    expect(options.find((o) => o.task_id === 'journeys:*')?.undocumented).toBe(true);
+    expect(options.find((o) => o.task_id === 'audiences:view')?.undocumented).toBe(false);
+  });
+
+  it('keeps undocumented descriptions free of developer shorthand', () => {
+    const groups = groupTasks([
+      { task_id: 'journeys:*', display_name: null, description: null },
+    ]);
+    expect(groups[0]?.options[0]?.help ?? '').not.toMatch(/undocumented|live catalog/i);
+  });
+});
+
 describe('groupTasksBySection', () => {
   const task = (id: string): TaskDef => ({ task_id: id, display_name: null, description: null });
 

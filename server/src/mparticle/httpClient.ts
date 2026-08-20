@@ -1,7 +1,9 @@
 import { PLATFORM_PATH_PREFIX, PODS, type EnvironmentConfig } from '@roles/shared';
 
+import { ApiError } from '../plugins/apiError';
 import type { TokenCredentials } from '../auth/tokenManager';
 import { mapUpstreamError } from './errorMapper';
+import type { RateLimiter } from './rateLimiter';
 
 export interface TokenProvider {
   getToken(key: string, creds: TokenCredentials): Promise<string>;
@@ -15,6 +17,8 @@ export interface MParticleHttpClientOptions {
   fetchFn?: FetchLike;
   sleepFn?: (ms: number) => Promise<void>;
   timeoutMs?: number;
+  /** Local budget below the API's 100/min; requests beyond it fail fast. */
+  rateLimiter?: RateLimiter;
 }
 
 type Method = 'GET' | 'PUT';
@@ -32,12 +36,14 @@ export class MParticleHttpClient {
   private readonly fetchFn: FetchLike;
   private readonly sleepFn: (ms: number) => Promise<void>;
   private readonly timeoutMs: number;
+  private readonly rateLimiter: RateLimiter | undefined;
 
   constructor(options: MParticleHttpClientOptions) {
     this.tokens = options.tokens;
     this.fetchFn = options.fetchFn ?? ((url, init) => fetch(url, init));
     this.sleepFn = options.sleepFn ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
     this.timeoutMs = options.timeoutMs ?? 20_000;
+    this.rateLimiter = options.rateLimiter;
   }
 
   async request<T>(env: EnvironmentConfig, method: Method, path: string, body?: unknown): Promise<T> {
@@ -48,6 +54,18 @@ export class MParticleHttpClient {
       PLATFORM_PATH_PREFIX +
       `/organizations/${env.orgId}/accounts/${env.accountId}` +
       path;
+
+    if (this.rateLimiter) {
+      const budget = this.rateLimiter.take(key);
+      if (!budget.ok) {
+        throw new ApiError(
+          'RATE_LIMITED',
+          429,
+          `Request budget for this environment is used up (kept below mParticle's 100/min). Retry in ${budget.retryAfterSec}s.`,
+          { retryAfter: budget.retryAfterSec },
+        );
+      }
+    }
 
     let attempt = 0;
     let retried401 = false;

@@ -42,18 +42,40 @@ describe('groupTasks', () => {
     expect(groups[0]?.options).toHaveLength(1);
   });
 
-  it('generates readable labels when display_name is null (live API behavior)', () => {
+  it('generates labels with real product names when display_name is null (live API behavior)', () => {
     const groups = groupTasks([
       { task_id: 'audiences:view', display_name: null, description: null },
       { task_id: 'audiences:*', display_name: null, description: null },
+      { task_id: 'user_groups:view', display_name: null, description: null },
       { task_id: 'connections:configure_inputs', display_name: null, description: null },
     ]);
     const labels = groups.flatMap((g) => g.options.map((o) => o.label));
     expect(labels).toEqual([
-      'Audiences — View',
-      'Audiences — Full access',
+      'Real-time Audiences — View',
+      'Real-time Audiences — Full access',
       'Connections — Configure inputs',
+      'Household Reach — View',
     ]);
+  });
+
+  it('falls back to curated docs descriptions when the API returns null', () => {
+    const groups = groupTasks([
+      { task_id: 'audiences:view', display_name: null, description: null },
+      { task_id: 'made_up:action', display_name: null, description: null },
+    ]);
+    const audiencesView = groups
+      .flatMap((g) => g.options)
+      .find((o) => o.task_id === 'audiences:view');
+    expect(audiencesView?.help).toMatch(/view all audiences/i);
+    const unknown = groups.flatMap((g) => g.options).find((o) => o.task_id === 'made_up:action');
+    expect(unknown?.help).toBeUndefined();
+  });
+
+  it('prefers the API description over the curated one', () => {
+    const groups = groupTasks([
+      { task_id: 'audiences:view', display_name: null, description: 'API-provided text' },
+    ]);
+    expect(groups[0]?.options[0]?.help).toBe('API-provided text');
   });
 
   it('prefers the API display_name for the label when present', () => {

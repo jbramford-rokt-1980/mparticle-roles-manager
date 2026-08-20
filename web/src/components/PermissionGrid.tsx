@@ -1,5 +1,5 @@
 import type { TaskDef } from '@roles/shared';
-import { CORE_TASK, groupTasks } from '@roles/shared';
+import { CORE_TASK, TASK_DESCRIPTIONS, groupTasks } from '@roles/shared';
 
 export interface PermissionGridProps {
   tasks: TaskDef[];
@@ -31,7 +31,7 @@ export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: P
               always included
             </span>
             <span className="block text-sm text-black/60">
-              {core?.description ?? 'Log in and view the dashboard'}
+              {core?.description ?? TASK_DESCRIPTIONS[CORE_TASK]}
             </span>
           </span>
         </label>
@@ -57,8 +57,8 @@ export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: P
                   <span>
                     <span className="text-[15px]">{option.label}</span>
                     <span className="ml-2 font-mono text-[11px] text-black/40">{option.task_id}</span>
-                    {option.description && (
-                      <span className="block text-sm text-black/55">{option.description}</span>
+                    {option.help && (
+                      <span className="block text-sm text-black/55">{option.help}</span>
                     )}
                   </span>
                 </label>

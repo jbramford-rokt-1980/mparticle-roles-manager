@@ -25,4 +25,22 @@ describe('App', () => {
     renderWithProviders(<App />);
     expect(await screen.findByRole('heading', { name: /unlock/i })).toBeInTheDocument();
   });
+
+  it('returns to the unlock screen when the vault locks mid-session (idle auto-lock)', async () => {
+    let locked = false;
+    mswServer.use(
+      http.get('/api/vault/status', () =>
+        HttpResponse.json({ status: locked ? 'locked' : 'unlocked' }),
+      ),
+      http.get('/api/environments', () => {
+        locked = true;
+        return HttpResponse.json(
+          { code: 'VAULT_LOCKED', httpStatus: 401, message: 'Unlock the vault to continue' },
+          { status: 401 },
+        );
+      }),
+    );
+    renderWithProviders(<App />);
+    expect(await screen.findByRole('heading', { name: /unlock/i })).toBeInTheDocument();
+  });
 });

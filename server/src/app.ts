@@ -8,6 +8,7 @@ import { TokenManager } from './auth/tokenManager';
 import { config } from './config';
 import { MParticleHttpClient } from './mparticle/httpClient';
 import { MockRolesApi } from './mparticle/mockRolesApi';
+import { RateLimiter } from './mparticle/rateLimiter';
 import { RolesApi, type RolesApiLike } from './mparticle/rolesApi';
 import { registerErrorHandler } from './plugins/errorHandler';
 import { registerEnvironmentRoutes } from './routes/environmentRoutes';
@@ -70,7 +71,9 @@ export function buildApp(options: BuildAppOptions = {}) {
   const mock = options.mockMparticle ?? config.mockMparticle;
   const rolesApi: RolesApiLike = mock
     ? new MockRolesApi()
-    : new RolesApi(new MParticleHttpClient({ tokens, fetchFn }));
+    : new RolesApi(
+        new MParticleHttpClient({ tokens, fetchFn, rateLimiter: new RateLimiter() }),
+      );
 
   app.decorate('vault', vault);
   app.decorate('tokens', tokens);

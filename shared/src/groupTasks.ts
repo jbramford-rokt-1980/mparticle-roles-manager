@@ -1,11 +1,14 @@
 import { CORE_TASK } from './limits';
+import { FEATURE_NAMES, TASK_DESCRIPTIONS } from './taskHelp';
 import type { TaskDef } from './types';
 
 export interface TaskOption extends TaskDef {
   /** The action part of `feature:action`; '*' means full access. */
   action: string;
-  /** Human-readable label: API display_name when present, generated otherwise. */
+  /** Human-readable label: API display_name, else generated from the product name. */
   label: string;
+  /** What this grants: API description, else curated docs text. */
+  help?: string;
 }
 
 export interface TaskGroup {
@@ -22,6 +25,10 @@ function humanize(feature: string): string {
     .join(' ');
 }
 
+function featureName(feature: string): string {
+  return FEATURE_NAMES[feature] ?? humanize(feature);
+}
+
 function actionRank(action: string): number {
   if (action === 'view') return 0;
   if (action === '*') return 2;
@@ -34,14 +41,19 @@ function actionLabel(action: string): string {
   return words ? words[0]?.toUpperCase() + words.slice(1) : words;
 }
 
-/** Label for a task outside group context (e.g. `user:core` → "User — Core"). */
+/** Label for a task outside group context (e.g. `audiences:view` → "Real-time Audiences — View"). */
 export function taskLabel(task: TaskDef): string {
   if (task.display_name) return task.display_name;
   const separator = task.task_id.indexOf(':');
   if (separator === -1) return humanize(task.task_id);
   const feature = task.task_id.slice(0, separator);
   const action = task.task_id.slice(separator + 1);
-  return `${humanize(feature)} — ${actionLabel(action)}`;
+  return `${featureName(feature)} — ${actionLabel(action)}`;
+}
+
+/** Best available description for a task id. */
+export function taskHelp(task: TaskDef): string | undefined {
+  return task.description ?? TASK_DESCRIPTIONS[task.task_id];
 }
 
 /**
@@ -57,8 +69,9 @@ export function groupTasks(tasks: TaskDef[]): TaskGroup[] {
     const feature = separator === -1 ? task.task_id : task.task_id.slice(0, separator);
     const action = separator === -1 ? task.task_id : task.task_id.slice(separator + 1);
     const options = byFeature.get(feature) ?? [];
-    const label = task.display_name || `${humanize(feature)} — ${actionLabel(action)}`;
-    options.push({ ...task, action, label });
+    const label = task.display_name || `${featureName(feature)} — ${actionLabel(action)}`;
+    const help = task.description ?? TASK_DESCRIPTIONS[task.task_id];
+    options.push({ ...task, action, label, ...(help !== undefined ? { help } : {}) });
     byFeature.set(feature, options);
   }
 
@@ -66,7 +79,7 @@ export function groupTasks(tasks: TaskDef[]): TaskGroup[] {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([feature, options]) => ({
       feature,
-      label: humanize(feature),
+      label: featureName(feature),
       options: options.sort(
         (a, b) => actionRank(a.action) - actionRank(b.action) || a.action.localeCompare(b.action),
       ),

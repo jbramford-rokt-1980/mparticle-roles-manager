@@ -17,6 +17,7 @@ import { useManifest, useTasks } from '../api/roles';
 import { DiffPreviewModal } from '../components/DiffPreviewModal';
 import { EnvSwitcher } from '../components/EnvSwitcher';
 import { PermissionGrid } from '../components/PermissionGrid';
+import { RoleGrantsSummary } from '../components/RoleGrantsSummary';
 import { NEW_ROLE_VALUE, RoleSelect } from '../components/RoleSelect';
 import { Button } from '../components/ui/Button';
 import { Field } from '../components/ui/Field';
@@ -203,6 +204,8 @@ export function RoleEditorPage() {
               error={fieldError('description')}
             />
           </div>
+
+          {activeRole && <RoleGrantsSummary role={activeRole} tasks={tasks} />}
 
           <PermissionGrid tasks={tasks} granted={granted} onToggle={toggleTask} />
 

@@ -119,6 +119,23 @@ describe('MParticleHttpClient', () => {
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
+  it('throws RATE_LIMITED locally when the request budget is exhausted', async () => {
+    const { RateLimiter } = await import('../rateLimiter');
+    const fetchFn = vi.fn().mockResolvedValue(jsonResponse({ ok: 1 }));
+    const client = new MParticleHttpClient({
+      fetchFn,
+      tokens: makeTokens(),
+      sleepFn: () => Promise.resolve(),
+      rateLimiter: new RateLimiter({ capacity: 1, windowMs: 60_000 }),
+    });
+
+    await client.request(env, 'GET', '/tasks');
+    const err = await client.request(env, 'GET', '/tasks').catch((e: unknown) => e);
+    expect((err as ApiError).code).toBe('RATE_LIMITED');
+    expect((err as ApiError).retryAfter).toBeGreaterThan(0);
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
   it('sends JSON bodies on PUT', async () => {
     const fetchFn = vi.fn().mockResolvedValue(jsonResponse({ done: true }));
     const { client } = makeClient(fetchFn);

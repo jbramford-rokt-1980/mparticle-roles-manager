@@ -83,7 +83,7 @@ export function EnvironmentForm({ existing, onSubmit, onCancel, submitting }: En
           required
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
-          hint="Platform API credential with Custom Roles access"
+          hint="From an mParticle API credential with the Custom Roles API selected"
         />
         <Field
           label="Client secret"

@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { isApiClientError } from '../api/client';
 import { useInitVault, useUnlockVault, useVaultStatus } from '../api/vault';
@@ -41,6 +42,7 @@ export function UnlockPage() {
 
 function CreateVaultForm() {
   const init = useInitVault();
+  const landOnRoles = useLandOnRoles();
   const [passphrase, setPassphrase] = useState('');
   const [confirm, setConfirm] = useState('');
   const [mismatch, setMismatch] = useState(false);
@@ -52,7 +54,7 @@ function CreateVaultForm() {
       return;
     }
     setMismatch(false);
-    init.mutate(passphrase);
+    init.mutate(passphrase, { onSuccess: landOnRoles });
   };
 
   return (
@@ -92,13 +94,24 @@ function CreateVaultForm() {
   );
 }
 
+/**
+ * After unlocking, always start on the roles overview rather than wherever
+ * the user happened to be when the vault locked — a single role's editor is
+ * a confusing place to land.
+ */
+function useLandOnRoles() {
+  const navigate = useNavigate();
+  return () => navigate('/roles', { replace: true });
+}
+
 function UnlockForm() {
   const unlock = useUnlockVault();
+  const landOnRoles = useLandOnRoles();
   const [passphrase, setPassphrase] = useState('');
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    unlock.mutate(passphrase);
+    unlock.mutate(passphrase, { onSuccess: landOnRoles });
   };
 
   return (

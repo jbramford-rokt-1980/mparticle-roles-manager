@@ -15,7 +15,12 @@ export const config = {
   host: '127.0.0.1',
   // Deliberately NOT plain `PORT` — dev harnesses inject that for the web server.
   port: intFromEnv('ROLES_PROXY_PORT', 8931),
-  dataDir: process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(repoRoot, 'data'),
+  // Relative paths resolve against the repo root, not the process cwd — the
+  // server workspace runs with cwd=server/, so plain resolve() would put the
+  // vault somewhere the user never looks. Absolute paths pass through.
+  dataDir: process.env.DATA_DIR
+    ? path.resolve(repoRoot, process.env.DATA_DIR)
+    : path.join(repoRoot, 'data'),
   idleLockMinutes: intFromEnv('IDLE_LOCK_MINUTES', 30),
   mockMparticle: process.env.MOCK_MPARTICLE === '1',
   /** Origins allowed to call the proxy (the Vite dev server). */

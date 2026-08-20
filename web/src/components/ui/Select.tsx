@@ -110,7 +110,9 @@ export function Select({
       >
         {label}
       </label>
-      <div ref={containerRef} className="relative">
+      {/* flex-1 so an inline-labelled select still reaches the container's
+          right edge, keeping it flush with other right-aligned controls. */}
+      <div ref={containerRef} className="relative flex-1">
         <button
           id={id}
           type="button"

@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Custom Roles Manager — User Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Rokt brand tokens — rokt.com/brand-guidelines */
+      :root {
+        --black: #000000;
+        --white: #ffffff;
+        --beetroot: #ad0068;
+        --wine: #480029;
+        --wine-tint: #f6eff3;
+        --ink-60: rgba(0, 0, 0, 0.62);
+        --ink-45: rgba(0, 0, 0, 0.45);
+        --rule: rgba(0, 0, 0, 0.16);
+        --page-x: 18mm;
+      }
+
+      @page {
+        size: A4;
+        margin: 14mm 0 16mm;
+      }
+      /* Full-bleed cover, and no running footer on it. */
+      @page :first {
+        margin: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Archivo, Helvetica, Arial, sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.55;
+        letter-spacing: -0.005em;
+        color: var(--black);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        padding: 0 var(--page-x);
+        break-after: page;
+      }
+      .page:last-child {
+        break-after: auto;
+      }
+
+      /* ---------- Cover ---------- */
+      .cover {
+        background: var(--wine);
+        color: var(--white);
+        height: 297mm;
+        padding: 26mm var(--page-x);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        break-after: page;
+      }
+      .cover-logo {
+        width: 62mm;
+        color: var(--white);
+      }
+      .cover h1 {
+        font-size: 34pt;
+        font-weight: 500;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin: 0 0 6mm;
+        max-width: 150mm;
+      }
+      .cover .eyebrow {
+        color: var(--white);
+        opacity: 0.55;
+      }
+      .cover p.lede {
+        font-size: 12pt;
+        color: rgba(255, 255, 255, 0.75);
+        max-width: 130mm;
+        margin: 0;
+      }
+      .cover-meta {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 8pt;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .connector {
+        display: flex;
+        gap: 2mm;
+        margin: 8mm 0;
+      }
+      .connector span {
+        display: block;
+        width: 9mm;
+        height: 4mm;
+        background: var(--beetroot);
+        transform: skewX(-24deg);
+      }
+      .connector span:nth-child(2) { opacity: 0.7; }
+      .connector span:nth-child(3) { opacity: 0.45; }
+      .connector span:nth-child(4) { opacity: 0.25; }
+
+      /* ---------- Typography ---------- */
+      .eyebrow {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 7.5pt;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--beetroot);
+        margin: 0 0 2mm;
+      }
+      h2 {
+        font-size: 19pt;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin: 0 0 4mm;
+        padding-bottom: 3mm;
+        border-bottom: 1px solid var(--rule);
+      }
+      h3 {
+        font-size: 12pt;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        margin: 7mm 0 2mm;
+      }
+      h4 {
+        font-size: 10.5pt;
+        font-weight: 500;
+        margin: 5mm 0 1.5mm;
+      }
+      p {
+        margin: 0 0 3mm;
+        max-width: 165mm;
+      }
+      .muted {
+        color: var(--ink-60);
+      }
+      code {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 9pt;
+        background: var(--wine-tint);
+        padding: 0.5mm 1.4mm;
+      }
+      pre {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 8.5pt;
+        background: var(--wine);
+        color: var(--white);
+        padding: 4mm 5mm;
+        margin: 0 0 4mm;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      ul, ol {
+        margin: 0 0 3mm;
+        padding-left: 5mm;
+        max-width: 165mm;
+      }
+      li {
+        margin-bottom: 1.5mm;
+      }
+
+      /* ---------- Components ---------- */
+      figure {
+        margin: 4mm 0 5mm;
+        break-inside: avoid;
+      }
+      figure img {
+        width: 100%;
+        display: block;
+        border: 1px solid var(--rule);
+      }
+      figcaption {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 7.5pt;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-45);
+        margin-top: 2mm;
+      }
+
+      .callout {
+        border-left: 3px solid var(--beetroot);
+        background: var(--wine-tint);
+        padding: 3.5mm 5mm;
+        margin: 0 0 4mm;
+        break-inside: avoid;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout .label {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 7.5pt;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--beetroot);
+        display: block;
+        margin-bottom: 1.5mm;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 0 4mm;
+        font-size: 9.5pt;
+        break-inside: avoid;
+      }
+      th {
+        text-align: left;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 7.5pt;
+        font-weight: 400;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-45);
+        border-bottom: 1px solid var(--black);
+        padding: 0 4mm 1.5mm 0;
+      }
+      td {
+        border-bottom: 1px solid var(--rule);
+        padding: 2mm 4mm 2mm 0;
+        vertical-align: top;
+      }
+      td code {
+        background: none;
+        padding: 0;
+        color: var(--ink-60);
+      }
+
+      .steps {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 4mm;
+      }
+      .steps > li {
+        counter-increment: step;
+        position: relative;
+        padding-left: 9mm;
+        margin-bottom: 3mm;
+      }
+      .steps > li::before {
+        content: counter(step, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        top: 0.4mm;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 8pt;
+        letter-spacing: 0.1em;
+        color: var(--beetroot);
+      }
+
+      .toc {
+        list-style: none;
+        padding: 0;
+        margin: 6mm 0 0;
+        max-width: 150mm;
+      }
+      .toc li {
+        display: flex;
+        justify-content: space-between;
+        gap: 4mm;
+        padding: 2.2mm 0;
+        border-bottom: 1px solid var(--rule);
+      }
+      .toc .num {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 8pt;
+        color: var(--beetroot);
+        min-width: 12mm;
+      }
+      .toc .title {
+        flex: 1;
+      }
+      .toc .note {
+        color: var(--ink-45);
+        font-size: 9pt;
+      }
+      .avoid-break {
+        break-inside: avoid;
+      }
+
+      /* ---------- Print orphan control ---------- */
+      /* A heading must never be the last thing on a page. */
+      h2,
+      h3,
+      h4 {
+        break-after: avoid;
+        break-inside: avoid;
+      }
+      /* Keep the section number with its heading. */
+      .eyebrow {
+        break-after: avoid;
+      }
+      p,
+      li {
+        orphans: 3;
+        widows: 3;
+      }
+      /* Never split a step list item or a table row across pages. */
+      .steps > li,
+      tr {
+        break-inside: avoid;
+      }
+      /* Keep an intro paragraph attached to the figure it introduces. */
+      p + figure {
+        break-before: avoid;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ============ COVER ============ -->
+    <section class="cover">
+      <svg class="cover-logo" viewBox="0 0 1060 223" fill="currentColor" fill-rule="evenodd" aria-label="mParticle by Rokt">
+        <use href="#logo" />
+      </svg>
+
+      <div>
+        <p class="eyebrow">User guide</p>
+        <h1>Custom Roles Manager</h1>
+        <p class="lede">
+          View any customer organization's mParticle custom roles, see exactly what each one
+          grants, and create, edit, or delete them safely.
+        </p>
+        <div class="connector"><span></span><span></span><span></span><span></span></div>
+      </div>
+
+      <div class="cover-meta">
+        <div>Solutions Team · Internal</div>
+        <div>Version 1.0</div>
+      </div>
+    </section>
+
+    <!-- ============ CONTENTS ============ -->
+    <section class="page">
+      <p class="eyebrow">Contents</p>
+      <h2>What's in this guide</h2>
+      <p class="muted">
+        Everything you need to run the app, connect a customer organization, and change roles
+        without risk. If you only read one section, make it 04 — it explains why the app always
+        shows you a diff before writing anything.
+      </p>
+
+      <ul class="toc">
+        <li><span class="num">001</span><span class="title">Before you start</span><span class="note">What it is, what it can't do</span></li>
+        <li><span class="num">002</span><span class="title">Install and run</span><span class="note">One command</span></li>
+        <li><span class="num">003</span><span class="title">Your vault</span><span class="note">Where credentials live</span></li>
+        <li><span class="num">004</span><span class="title">Connecting a customer</span><span class="note">Credentials, pods, IDs</span></li>
+        <li><span class="num">005</span><span class="title">Viewing roles</span><span class="note">What each role grants</span></li>
+        <li><span class="num">006</span><span class="title">Creating and editing</span><span class="note">The diff gate</span></li>
+        <li><span class="num">007</span><span class="title">Deleting a role</span><span class="note">And why it may fail</span></li>
+        <li><span class="num">008</span><span class="title">History and rollback</span><span class="note">Undo a change</span></li>
+        <li><span class="num">009</span><span class="title">When something goes wrong</span><span class="note">Error reference</span></li>
+        <li><span class="num">010</span><span class="title">Security notes</span><span class="note">What to tell IT</span></li>
+      </ul>
+
+      <div class="callout" style="margin-top: 8mm">
+        <span class="label">The one thing to remember</span>
+        <p>
+          mParticle has no "update one role" endpoint. Every save replaces the organization's
+          entire role list, so a role left out is a role deleted. This app never lets that happen
+          by accident: it rebuilds the full list for you, shows you a diff, and only writes after
+          you confirm it.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 001 ============ -->
+    <section class="page">
+      <p class="eyebrow">001</p>
+      <h2>Before you start</h2>
+
+      <p>
+        Custom Roles Manager is an internal tool for the Solutions team. It talks to the mParticle
+        Custom Roles API on behalf of a customer organization so you can audit and change custom
+        roles without hand-writing API calls.
+      </p>
+
+      <h3>What it does</h3>
+      <ul>
+        <li>Lists every custom role in an organization, with a plain-English description of each permission it grants.</li>
+        <li>Creates, edits, and deletes roles, always behind a reviewed diff.</li>
+        <li>Keeps a local history of every change it made, with one-click rollback.</li>
+        <li>Stores credentials for several customer organizations, encrypted on your machine.</li>
+      </ul>
+
+      <h3>What it can't do</h3>
+      <p class="muted">These are limits of the mParticle API, not the app.</p>
+      <table>
+        <thead>
+          <tr><th style="width: 45%">Task</th><th>Where to do it instead</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Assign a role to a user</td>
+            <td>mParticle UI — Settings → User Management. There is no API for assignment.</td>
+          </tr>
+          <tr>
+            <td>See which users hold a role</td>
+            <td>mParticle UI. The API never exposes role membership.</td>
+          </tr>
+          <tr>
+            <td>Look up an organization or account ID</td>
+            <td>Read them from the API Credential dialog in the mParticle UI.</td>
+          </tr>
+          <tr>
+            <td>Reproduce a standard role exactly</td>
+            <td>Some built-in role permissions have no matching task ID, so custom equivalents are approximations.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>What you need</h3>
+      <ul>
+        <li>Node.js 20 or newer on your machine.</li>
+        <li>An mParticle API credential for the customer organization with the <strong>Custom Roles</strong> API selected — Admin permissions, organization-level scope. Only a Custom Role Admin in that org can create one.</li>
+        <li>The organization ID, account ID, and pod for that customer.</li>
+      </ul>
+    </section>
+
+    <!-- ============ 002 / 003 ============ -->
+    <section class="page">
+      <p class="eyebrow">002</p>
+      <h2>Install and run</h2>
+
+      <p>Clone the repository, then from the project folder:</p>
+      <pre>npm install
+npm run dev</pre>
+
+      <p>
+        That starts two things: the interface on <code>http://localhost:5173</code> and a small
+        local server on <code>127.0.0.1:8931</code> that holds your credentials and makes the API
+        calls. Both run on your machine only — nothing is hosted, and the local server refuses
+        connections from anywhere else.
+      </p>
+
+      <p>
+        To explore the app without any customer credentials, run
+        <code>npm run dev:mock</code> instead. It serves a fake organization with sample roles.
+        Every screenshot in this guide was taken that way.
+      </p>
+
+      <div class="callout">
+        <span class="label">Why a local server</span>
+        <p>
+          Browsers can't call the mParticle API directly, and a client secret sitting in page
+          JavaScript would be readable by anyone with developer tools open. The local server keeps
+          secrets out of the browser entirely.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ============ 003 ============ -->
+    <section class="page">
+      <p class="eyebrow">003</p>
+      <h2>Your vault</h2>
+
+      <p>
+        On first run you choose a passphrase. It encrypts a single file,
+        <code>data/vault.enc.json</code>, holding the credentials for every customer organization
+        you add (AES-256-GCM, key derived with scrypt).
+      </p>
+
+      <figure>
+        <img src="images/01-create-vault.png" alt="Create your vault screen" />
+        <figcaption>First run — choose a vault passphrase</figcaption>
+      </figure>
+
+      <div class="callout">
+        <span class="label">There is no recovery</span>
+        <p>
+          Forget the passphrase and the credentials are unrecoverable — delete
+          <code>data/vault.enc.json</code> and add the environments again. Nothing else is lost.
+        </p>
+      </div>
+
+      <p>
+        The vault locks itself after 30 idle minutes, and you can lock it any time with
+        <strong>Lock vault</strong> in the top-right. Locking wipes the decrypted credentials and
+        access tokens from memory and returns you to the passphrase screen; nothing on disk is
+        deleted.
+      </p>
+    </section>
+
+    <!-- ============ 004 ============ -->
+    <section class="page">
+      <p class="eyebrow">004</p>
+      <h2>Connecting a customer organization</h2>
+
+      <p>
+        Each customer is an "environment". Open <strong>Environments</strong> and choose
+        <strong>Add environment</strong>.
+      </p>
+
+      <figure>
+        <img src="images/02-environments-empty.png" alt="Empty environments screen" />
+        <figcaption>Environments — before anything is added</figcaption>
+      </figure>
+
+      <h3>Getting the credential from mParticle</h3>
+      <ol class="steps">
+        <li>In the customer's mParticle dashboard, go to <strong>Settings → API Credentials</strong> and choose <strong>Add Credential</strong>.</li>
+        <li>Under <strong>Select APIs</strong>, tick <strong>Custom Roles</strong>. It is its own API alongside Platform, Profile, and Data Plans — Platform API access is not what this tool needs. Custom Roles is Admin permissions, organization-level scope.</li>
+        <li>Copy the <strong>Client Secret</strong> before closing the dialog — mParticle shows it once and it cannot be retrieved later.</li>
+        <li>Note the <strong>Organization ID</strong> and <strong>Account ID</strong> shown in that same dialog.</li>
+      </ol>
+
+      <figure>
+        <img src="images/03-environment-form.png" alt="Add environment form filled in" />
+        <figcaption>Adding an environment</figcaption>
+      </figure>
+
+      <h3>Choosing the pod</h3>
+      <p>
+        The pod is the mParticle region the customer runs on. Check their dashboard URL: US1 is
+        <code>app.mparticle.com</code>, and the others are prefixed, for example
+        <code>app.eu1.mparticle.com</code>. Picking the wrong pod is the most common cause of a
+        failed connection.
+      </p>
+
+      <figure>
+        <img src="images/04-pod-dropdown.png" alt="Pod dropdown open" />
+        <figcaption>Pod selection — the API host each option targets</figcaption>
+      </figure>
+
+      <p>
+        Save, then choose <strong>Test connection</strong>. A successful test confirms the
+        credentials work, the pod is right, and the credential is provisioned for the Custom Roles
+        API. The stored secret is only ever shown masked.
+      </p>
+
+      <figure>
+        <img src="images/05-environment-saved.png" alt="Saved environment with successful connection test" />
+        <figcaption>A connected environment</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 005 ============ -->
+    <section class="page">
+      <p class="eyebrow">005</p>
+      <h2>Viewing roles</h2>
+
+      <p>
+        <strong>Roles</strong> lists every custom role in the selected organization, read live from
+        mParticle each time you open it. The meter tracks the 100-role limit, and the header shows
+        who last changed the roles and when.
+      </p>
+
+      <figure>
+        <img src="images/06-roles-overview.png" alt="Roles overview table" />
+        <figcaption>Roles — every custom role in the organization</figcaption>
+      </figure>
+
+      <p>Select any role name to open it in the editor, where every permission it grants is listed.</p>
+
+      <figure>
+        <img src="images/07-role-editor.png" alt="Role editor showing a selected role" />
+        <figcaption>Role editor — the grid reflects exactly what the role grants</figcaption>
+      </figure>
+
+      <p>
+        For a quick answer to "what can someone with this role actually do?", expand
+        <strong>What this role grants</strong>.
+      </p>
+
+      <figure>
+        <img src="images/08-role-grants.png" alt="Expanded role grants summary" />
+        <figcaption>A plain-English summary of one role's access</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ 005b ============ -->
+    <section class="page">
+      <h3>How permissions are organized</h3>
+      <p>
+        Permissions are grouped the way the platform itself works — data comes in, gets connected,
+        powers features, and is administered:
+      </p>
+      <table>
+        <thead><tr><th style="width: 32%">Section</th><th>Covers</th></tr></thead>
+        <tbody>
+          <tr><td>001 Data Ingestion</td><td>Warehouse Sync connections and data models</td></tr>
+          <tr><td>002 Connections &amp; Integrations</td><td>Inputs, outputs, integrations, data filters</td></tr>
+          <tr><td>003 Data Platform &amp; Quality</td><td>Data plans, rules, catalog, live stream</td></tr>
+          <tr><td>004 Identity &amp; Customer 360</td><td>User activity, calculated attributes, household reach</td></tr>
+          <tr><td>005 Audiences &amp; Activation</td><td>Real-time and composable audiences, journeys</td></tr>
+          <tr><td>006 Oversight &amp; Privacy</td><td>Privacy settings, data subject requests, observability</td></tr>
+          <tr><td>007 Platform Administration</td><td>Workspaces, users, API credentials, identity settings, billing</td></tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img src="images/09-permission-sections.png" alt="Permission grid sections" />
+        <figcaption>Each permission states what it allows</figcaption>
+      </figure>
+
+      <h3>Two things to know about the grid</h3>
+      <p>
+        <strong>Core access is always included.</strong> Every mParticle role can log in and view
+        the dashboard, so that permission is shown ticked and locked. Roles also carry a few
+        view-only extras with no separate toggle: system alerts, the Event Forwarding report, Data
+        Master Catalog viewing, the Integrations Directory, and workspace access.
+      </p>
+
+      <div class="callout">
+        <span class="label">The "unverified" badge</span>
+        <p>
+          A handful of permissions exist in the API but have no published description from
+          mParticle. They're labelled <strong>unverified</strong>, and their wording here is
+          inferred from the product area. Confirm the exact scope in the mParticle UI before
+          granting one to a customer.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 006 ============ -->
+    <section class="page">
+      <p class="eyebrow">006</p>
+      <h2>Creating and editing a role</h2>
+
+      <p>
+        Use the <strong>Role</strong> dropdown to edit an existing role, or <strong>New role</strong>
+        to start a blank one.
+      </p>
+
+      <figure>
+        <img src="images/10-role-dropdown.png" alt="Role dropdown open" />
+        <figcaption>Choosing which role to work on</figcaption>
+      </figure>
+
+      <ol class="steps">
+        <li>Give the role a <strong>name</strong> (up to 64 characters) and, for a new role, a <strong>Role ID</strong> — a permanent identifier using letters, numbers, dots, dashes, or underscores.</li>
+        <li>Add a <strong>description</strong> (up to 256 characters). Say who the role is for; it's the only context the next person gets.</li>
+        <li>Tick the permissions. Within a feature, "Full access" replaces the narrower options automatically.</li>
+        <li>Choose <strong>Review changes</strong>.</li>
+      </ol>
+
+      <p>
+        Character counts sit under each field and turn Beetroot if you go over the limit. The
+        Role ID of an existing role can't be edited — changing it would delete that role and create
+        a different one.
+      </p>
+
+      <h3>The diff gate</h3>
+      <p>
+        Nothing is written until you confirm. The app fetches the organization's current roles,
+        applies your change to them, and shows you exactly what will differ.
+      </p>
+
+      <figure>
+        <img src="images/11-diff-preview.png" alt="Diff preview modal" />
+        <figcaption>Review changes — added permissions in Beetroot, removed struck through</figcaption>
+      </figure>
+
+      <p>
+        Choose <strong>Confirm and write to org</strong> to apply it. If someone else changed the
+        organization's roles while you were reviewing, the write is refused and you're shown a
+        refreshed diff instead — your change is never silently applied on top of theirs.
+      </p>
+    </section>
+
+    <!-- ============ 007 / 008 ============ -->
+    <section class="page">
+      <p class="eyebrow">007</p>
+      <h2>Deleting a role</h2>
+
+      <p>
+        Open the role and choose <strong>Delete role</strong>. Because deletions are permanent and
+        organization-wide, you must tick the acknowledgement before the confirm button becomes
+        available.
+      </p>
+
+      <figure>
+        <img src="images/12-delete-confirm.png" alt="Delete confirmation with acknowledgement" />
+        <figcaption>Deletions need an explicit acknowledgement</figcaption>
+      </figure>
+
+      <div class="callout">
+        <span class="label">If the delete is rejected</span>
+        <p>
+          mParticle refuses to delete a role that is still assigned to a user, and the whole change
+          is rejected — nothing is modified. Unassign the role in the mParticle UI
+          (Settings → User Management), then try again. There is no API for unassignment.
+        </p>
+      </div>
+
+      <p class="eyebrow" style="margin-top: 10mm">008</p>
+      <h2>History and rollback</h2>
+
+      <p>
+        <strong>History</strong> records every change this app has written for the selected
+        environment, plus a snapshot of the organization's roles from the first time you opened it.
+      </p>
+
+      <figure>
+        <img src="images/13-history.png" alt="History page" />
+        <figcaption>History — each entry can be restored</figcaption>
+      </figure>
+
+      <p>
+        <strong>Restore this state</strong> rebuilds the roles exactly as they were in that
+        snapshot. It goes through the same diff review as any other change, so you see precisely
+        what restoring would add back or remove before it happens.
+      </p>
+
+      <p class="muted">
+        History is stored on your machine, in <code>data/history/</code>. It records what this app
+        did — changes made in the mParticle UI or by another teammate's copy won't appear.
+      </p>
+    </section>
+
+    <!-- ============ 009 / 010 ============ -->
+    <section class="page">
+      <p class="eyebrow">009</p>
+      <h2>When something goes wrong</h2>
+
+      <table>
+        <thead><tr><th style="width: 34%">What you see</th><th>What to do</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Credentials rejected</td>
+            <td>The client ID or secret is wrong, or the credential was deleted in mParticle. Re-check them on the environment, or issue a new credential.</td>
+          </tr>
+          <tr>
+            <td>403 or 404 from mParticle</td>
+            <td>Usually the wrong pod, wrong organization or account ID, or a credential without Custom Roles access. Check the pod first.</td>
+          </tr>
+          <tr>
+            <td>Role is assigned to a user</td>
+            <td>Unassign it in the mParticle UI, then delete again. Nothing was changed.</td>
+          </tr>
+          <tr>
+            <td>A role with this name already exists</td>
+            <td>Names must be unique in the organization. Pick a different one.</td>
+          </tr>
+          <tr>
+            <td>Rate limit reached</td>
+            <td>mParticle allows 100 requests a minute. Wait the number of seconds shown and retry.</td>
+          </tr>
+          <tr>
+            <td>Roles changed since you reviewed</td>
+            <td>Someone edited the organization while you had the diff open. Review the refreshed diff and confirm again.</td>
+          </tr>
+          <tr>
+            <td>Local server unreachable</td>
+            <td>The local server isn't running. Start it with <code>npm run dev</code> and choose Retry.</td>
+          </tr>
+          <tr>
+            <td>Back at the passphrase screen</td>
+            <td>The vault locked, either from 30 idle minutes or because you locked it. Enter your passphrase to continue.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <figure>
+        <img src="images/14-unlock.png" alt="Unlock screen" />
+        <figcaption>The locked state — everything is safe, just re-enter your passphrase</figcaption>
+      </figure>
+
+      <p class="eyebrow" style="margin-top: 8mm">010</p>
+      <h2>Security notes</h2>
+
+      <ul>
+        <li>Credentials are encrypted at rest with AES-256-GCM and a scrypt-derived key, and only ever decrypted into the local server's memory.</li>
+        <li>The local server binds to <code>127.0.0.1</code> and is unreachable from the network.</li>
+        <li>Client secrets never reach the browser — the interface only ever receives the last four characters.</li>
+        <li>Secrets and access tokens are stripped from logs.</li>
+        <li>Access tokens last eight hours and cannot be revoked by mParticle, so they are kept in memory only and dropped when the vault locks.</li>
+        <li>The vault and history files are excluded from version control. Never commit <code>data/</code>.</li>
+      </ul>
+
+      <div class="callout">
+        <span class="label">Sharing this app</span>
+        <p>
+          Each person runs their own copy with their own vault and their own mParticle credentials.
+          Never share a vault file or a passphrase.
+        </p>
+      </div>
+    </section>
+
+    <!-- Official mParticle by Rokt lockup (rokt.com/brand-guidelines) -->
+    <svg style="display: none" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="logo" viewBox="0 0 1060 223" fill-rule="evenodd">
+        <path d="M519.1,1.5l-7.5,14.7h24.6v54.9h19.3V16.2h21.1V1.5h-57.6Z" />
+        <path d="M376,23.5c0-13.1-8.5-22.2-27.4-22.2h-31.5v69.7h19.2v-25.6h10.4l12.3,25.6h21.6l-15.4-30.9c7-4,10.7-9.2,10.7-16.6h0ZM345.6,32.7h-9.2V14h9.2c7.2,0,10.2,3.2,10.2,9.3s-3,9.4-10.3,9.4h0Z" />
+        <path d="M497.2,32.5l16-31.1h-11.1c0,.1-30.3,21.9-30.3,21.9V1.4h-19.2v69.6h19.2v-36l21-17.2-12.9,22.5h0s14.7,30.6,14.7,30.6h21.7l-19-38.4h0Z" />
+        <path d="M413.7,0c-9.9,0-17.9,3.3-23.9,9.8-6,6.5-9,15.2-9,26.5v.2c0,11.2,3,20.1,9,26.6,6,6.5,14,9.7,23.9,9.7s17.9-3.2,23.9-9.7c6-6.5,9-15.3,9-26.6v-.2c0-11.2-3-20-9-26.5-5.9-6.5-13.9-9.8-23.9-9.8ZM427,36.9c0,7-1.3,12.6-3.7,16.6-2.4,4-5.7,6-9.7,6s-7.3-2-9.8-6c-2.5-4-3.7-9.6-3.7-16.6h0c0-7.2,1.2-12.6,3.7-16.7,2.5-4,5.7-6.1,9.8-6.1s7.3,2,9.7,6.1c2.5,4,3.7,9.5,3.7,16.5h0Z" />
+        <path d="M177.5,167.4v55.4l88.7-55.4v-55.4l-88.7,55.4Z" />
+        <path d="M88.7,167.4v55.4l88.7-55.4v-55.4l-88.7,55.4Z" />
+        <path d="M0,167.4v55.4l88.7-55.4v-55.4L0,167.4Z" />
+        <path d="M266.2,1l-88.7,55.4v55.4l88.7-55.4V1Z" />
+        <path d="M177.5,1l-88.7,55.4v55.4l88.7-55.4V1Z" />
+        <path d="M88.7,1L0,56.5v55.4l88.7-55.4V1Z" />
+        <path d="M450.6,131.4v52.5h-22.7v-50.8c0-10.3-4.9-15.4-14.3-15.4s-13.1,3-18.4,8.9v57.2h-22.6v-50.8c0-10.3-4.7-15.4-14.1-15.4s-13.3,3.1-18.5,9.4v56.7h-22.9v-83.8h21.3v7.9c7.5-6.2,17-9.6,26.7-9.4,11.5,0,19.9,3.8,24.8,11.5,9.2-7.7,19.4-11.5,30.4-11.5,19.7,0,30.4,11.5,30.4,32.8h0Z" />
+        <path d="M550.3,119.2c10,17.8,7.1,40-7.2,54.6-7.9,7.6-18.4,11.9-29.3,12.1-7.9.2-15.6-2.6-21.6-7.7v44.9h-22.8v-122.9h22.2v6.5c6.3-5.2,14.2-8.1,22.3-8,14.9-.1,28.8,7.7,36.4,20.6h0ZM533.4,141.8c0-14.8-10.5-24.1-22.3-24.1-7.3-.1-14.4,3-19.2,8.5v31.9c4.6,5.3,11.4,8.3,18.4,8.2,12.8,0,23.1-9.3,23.1-24.6h0Z" />
+        <path d="M652.2,183.9h-21.4v-7.2c-6.1,6-14.4,9.3-23,9.1-15,.1-28.9-7.9-36.3-21-4.1-6.9-6.1-14.7-5.9-22.7,0-16.9,8.7-31.1,21.6-38.2,6.3-3.6,13.5-5.5,20.8-5.4,8.4-.2,16.6,2.9,22.7,8.7v-7.2h21.6v83.8c0,0,0,0,0,0ZM629.7,158.4v-32.5c-4.8-5.3-11.6-8.3-18.7-8.2-12.2,0-22.7,9.4-22.7,24.4s10.3,24.3,22.5,24.3c7.2.2,14.1-2.7,18.8-8h0Z" />
+        <path d="M693.1,100.1v7.7c6.8-6.8,14.3-9.3,27.2-9.3v21.6c-2-.5-4.2-.8-6.3-.7-7.6.2-14.6,3.7-19.4,9.6v54.8h-22.9v-83.8h21.3Z" />
+        <path d="M789.2,100.1v18.8h-18.8v64.9h-22.7v-64.9h-17.6v-18.8h17.6v-27.9h22.7v27.9h18.8Z" />
+        <path d="M802.1,65.9h23.9v23h-23.9v-23ZM825.5,183.9v-83.8h-22.9v83.8h22.9Z" />
+        <path d="M921.6,167c-8,11.5-21.6,18.7-37.2,18.7s-30.9-7.7-38.9-21c-12.3-20.9-5.4-47.8,15.5-60.1.3-.2.5-.3.8-.4,6.9-3.7,14.6-5.6,22.5-5.6,16.6,0,29,6.3,37.2,19l-17.5,10.8c-4.9-7-11.3-10.5-19.5-10.5-13.3,0-22.2,10.3-22.2,24.6s8.5,23.7,22,23.7c8.1.2,15.8-3.7,20.6-10.3l16.7,11.1h0Z" />
+        <path d="M959.2,183.9h-22.7V58.4h22.7v125.5Z" />
+        <path d="M1037.8,156.4c-5.1,6.3-12.9,9.8-21,9.6-11.8,0-20.2-6.5-22-18.7h64.4c.1-1.2.2-2.3.2-3.5,0-27.7-17.3-45.6-42.6-45.6-8.1-.2-16.2,1.9-23.2,5.9-13.6,7.9-21.1,21.6-21.1,37.9-.1,11.4,4.2,22.3,12,30.5,7.5,7.9,19.2,12.7,32.3,12.7s28.6-6.6,37-18.5l-16-10.5h0ZM1017.4,117.1c10.6,0,17.3,5.1,20.1,15.4h-41.7c3.1-10,10.6-15.4,21.6-15.4h0Z" />
+      </symbol>
+    </svg>
+  </body>
+</html>

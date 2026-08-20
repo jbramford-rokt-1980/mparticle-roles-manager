@@ -93,7 +93,7 @@ function RolesTable({ manifest }: { manifest: Manifest }) {
         {[...manifest.roles]
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((role) => (
-            <tr key={role.role_id} className="border-b border-black/10 hover:bg-wine-tint/40">
+            <tr key={role.role_id} className="border-b border-black/10 align-top hover:bg-wine-tint/40">
               <td className="py-3 pr-4">
                 <Link
                   to={`/roles/editor?role=${encodeURIComponent(role.role_id)}`}
@@ -103,7 +103,11 @@ function RolesTable({ manifest }: { manifest: Manifest }) {
                 </Link>
               </td>
               <td className="py-3 pr-4 font-mono text-[13px] text-black/70">{role.role_id}</td>
-              <td className="max-w-md truncate py-3 pr-4 text-black/70">{role.description}</td>
+              {/* Descriptions carry the reason a role exists, so show them in
+                  full rather than clipping to one line. */}
+              <td className="py-3 pr-4 text-[15px] leading-snug text-black/70">
+                {role.description}
+              </td>
               <td className="py-3 text-right font-mono text-[13px]">{role.tasks.length}</td>
             </tr>
           ))}

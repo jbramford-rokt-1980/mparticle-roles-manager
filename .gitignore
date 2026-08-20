@@ -6,6 +6,9 @@ coverage/
 # Runtime data — encrypted vault and history live here. Never commit.
 data/
 
+# Throwaway vault used when generating the user guide's screenshots.
+.guide-data/
+
 # Local environment config (ports etc). Secrets belong in the vault, not env files.
 .env
 .env.local

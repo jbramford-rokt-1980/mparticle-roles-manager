@@ -5,11 +5,16 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { createQueryClient } from '../api/queryClient';
 
-export function renderWithProviders(ui: ReactElement) {
+export interface RenderOptions {
+  /** Initial router entries, e.g. ['/roles/editor?role=x']. */
+  initialEntries?: string[];
+}
+
+export function renderWithProviders(ui: ReactElement, options: RenderOptions = {}) {
   const queryClient = createQueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
+      <MemoryRouter initialEntries={options.initialEntries ?? ['/']}>{ui}</MemoryRouter>
     </QueryClientProvider>,
   );
 }

@@ -1,5 +1,7 @@
 import type { TaskDef } from '@roles/shared';
-import { CORE_TASK, TASK_DESCRIPTIONS, groupTasksBySection } from '@roles/shared';
+import { CORE_TASK, TASK_DESCRIPTIONS, allTaskIds, groupTasksBySection } from '@roles/shared';
+
+import { Button } from './ui/Button';
 
 export interface PermissionGridProps {
   tasks: TaskDef[];
@@ -7,13 +9,21 @@ export interface PermissionGridProps {
   granted: ReadonlySet<string>;
   readOnly?: boolean;
   onToggle?: (taskId: string, checked: boolean) => void;
+  /** Grant or clear several permissions at once (the section bulk actions). */
+  onBulkToggle?: (taskIds: string[], checked: boolean) => void;
 }
 
 /**
  * The full permission catalog as checkboxes, sectioned the way the platform
  * is organized (ingestion → connections → features → admin); core pinned.
  */
-export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: PermissionGridProps) {
+export function PermissionGrid({
+  tasks,
+  granted,
+  readOnly = false,
+  onToggle,
+  onBulkToggle,
+}: PermissionGridProps) {
   const core = tasks.find((t) => t.task_id === CORE_TASK);
   const sections = groupTasksBySection(tasks);
 
@@ -48,6 +58,28 @@ export function PermissionGrid({ tasks, granted, readOnly = false, onToggle }: P
             </span>
             <h3 className="shrink-0 font-medium tracking-tight">{section.label}</h3>
             <span className="h-px w-full bg-black/15" role="presentation" />
+            {!readOnly && onBulkToggle && (
+              <span className="flex shrink-0 gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Grant all ${section.label} permissions`}
+                  onClick={() => onBulkToggle(allTaskIds(section.groups), true)}
+                >
+                  Grant all
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Remove all ${section.label} permissions`}
+                  onClick={() => onBulkToggle(allTaskIds(section.groups), false)}
+                >
+                  Remove all
+                </Button>
+              </span>
+            )}
           </div>
           <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
             {section.groups.map((group) => (

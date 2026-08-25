@@ -6,6 +6,7 @@ import {
   DESCRIPTION_MAX,
   NAME_MAX,
   ROLE_ID_MAX,
+  applyTaskGrant,
   validateRole,
   type MutationIntent,
   type Role,
@@ -90,23 +91,22 @@ export function RoleEditorPage() {
 
   const toggleTask = (taskId: string, checked: boolean) => {
     setSavedNote(false);
+    setGranted((prev) => applyTaskGrant(prev, taskId, checked));
+  };
+
+  /**
+   * Section-level Grant all / Remove all. Grant ticks every box outright
+   * rather than collapsing each feature to its full-access task — "grant all"
+   * should look like everything is granted.
+   */
+  const bulkToggleTasks = (taskIds: string[], checked: boolean) => {
+    setSavedNote(false);
     setGranted((prev) => {
       const next = new Set(prev);
-      if (!checked) {
-        next.delete(taskId);
-        return next;
+      for (const id of taskIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
       }
-      const separator = taskId.indexOf(':');
-      const feature = separator === -1 ? taskId : taskId.slice(0, separator);
-      if (taskId.endsWith(':*')) {
-        // Full access supersedes every other grant in the feature.
-        for (const existing of [...next]) {
-          if (existing.startsWith(`${feature}:`)) next.delete(existing);
-        }
-      } else {
-        next.delete(`${feature}:*`);
-      }
-      next.add(taskId);
       return next;
     });
   };
@@ -205,7 +205,12 @@ export function RoleEditorPage() {
 
           {activeRole && <RoleGrantsSummary role={activeRole} tasks={tasks} />}
 
-          <PermissionGrid tasks={tasks} granted={granted} onToggle={toggleTask} />
+          <PermissionGrid
+            tasks={tasks}
+            granted={granted}
+            onToggle={toggleTask}
+            onBulkToggle={bulkToggleTasks}
+          />
 
           {fieldError('tasks') && <p className="text-sm text-beetroot">{fieldError('tasks')}</p>}
           {fieldError('manifest') && (

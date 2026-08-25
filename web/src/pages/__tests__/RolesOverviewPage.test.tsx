@@ -31,6 +31,29 @@ describe('RolesOverviewPage', () => {
     expect(screen.getByText('Marketing Manager')).toBeInTheDocument();
   });
 
+  it('offers a New role action that opens the editor with nothing selected', async () => {
+    givenApi();
+    renderWithProviders(
+      <SelectedEnvProvider>
+        <RolesOverviewPage />
+      </SelectedEnvProvider>,
+    );
+    const newRole = await screen.findByRole('link', { name: /new role/i });
+    // No ?role= param — the editor must open blank, not inside another role.
+    expect(newRole).toHaveAttribute('href', '/roles/editor');
+  });
+
+  it('hides the New role action until an environment is connected', async () => {
+    mswServer.use(http.get('/api/environments', () => HttpResponse.json([])));
+    renderWithProviders(
+      <SelectedEnvProvider>
+        <RolesOverviewPage />
+      </SelectedEnvProvider>,
+    );
+    expect(await screen.findByText(/add an environment/i)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /new role/i })).not.toBeInTheDocument();
+  });
+
   it('shows manifest metadata and the 100-role meter', async () => {
     givenApi();
     renderWithProviders(

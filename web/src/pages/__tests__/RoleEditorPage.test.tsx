@@ -86,6 +86,35 @@ describe('RoleEditorPage', () => {
     expect(core).toBeDisabled();
   });
 
+  it('Grant all ticks every checkbox in that section', async () => {
+    givenApi();
+    renderEditor();
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole('button', { name: /grant all audiences & activation/i }),
+    );
+
+    expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /audiences — view/i })).toBeChecked();
+    // Other sections are untouched.
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).not.toBeChecked();
+  });
+
+  it('Remove all clears every permission in that section only', async () => {
+    givenApi();
+    renderEditor();
+    const user = userEvent.setup();
+    await chooseOption(user, /^role$/i, /Marketing Manager/);
+    expect(await screen.findByRole('checkbox', { name: /audiences — full access/i })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: /remove all audiences & activation/i }));
+
+    expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).not.toBeChecked();
+    // A different section keeps its grants.
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).toBeChecked();
+  });
+
   it('checking full access unchecks the other options in that feature', async () => {
     givenApi();
     renderEditor();
@@ -105,7 +134,9 @@ describe('RoleEditorPage', () => {
       proposedRoles: [{ role_id: 'brand-new', name: 'Brand New', description: '', tasks: [] }],
       baseVersion: 4,
       diff: {
-        created: [{ role_id: 'brand-new', name: 'Brand New', description: '', tasks: ['user:core'] }],
+        created: [
+          { role_id: 'brand-new', name: 'Brand New', description: '', tasks: ['user:core'] },
+        ],
         deleted: [],
         modified: [],
         unchanged: [],

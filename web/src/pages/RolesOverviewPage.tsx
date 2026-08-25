@@ -4,8 +4,12 @@ import { MAX_ROLES_PER_ORG, type Manifest } from '@roles/shared';
 
 import { useManifest } from '../api/roles';
 import { EnvSwitcher } from '../components/EnvSwitcher';
+import { ButtonLink } from '../components/ui/ButtonLink';
 import { PageHeader } from '../components/ui/PageHeader';
 import { useSelectedEnv } from '../state/SelectedEnvContext';
+
+/** The editor opens blank when no role is named in the query string. */
+const NEW_ROLE_PATH = '/roles/editor';
 
 export function RolesOverviewPage() {
   const { selected, environments, isLoading: envsLoading } = useSelectedEnv();
@@ -17,7 +21,17 @@ export function RolesOverviewPage() {
         eyebrow="Overview"
         title="Roles"
         description="Every custom role in this organization — open one to see exactly what it grants."
-        actions={<EnvSwitcher />}
+        actions={
+          <div className="flex flex-wrap items-end gap-4">
+            <EnvSwitcher />
+            {/* size matches the environment switcher beside it */}
+            {selected && (
+              <ButtonLink to={NEW_ROLE_PATH} size="sm">
+                New role
+              </ButtonLink>
+            )}
+          </div>
+        }
       />
 
       {!envsLoading && environments.length === 0 && (
@@ -69,12 +83,11 @@ function ManifestMeta({ manifest }: { manifest: Manifest }) {
 function RolesTable({ manifest }: { manifest: Manifest }) {
   if (manifest.roles.length === 0) {
     return (
-      <div className="mt-8 border border-dashed border-black/25 px-6 py-10 text-center text-black/60">
-        No custom roles in this org yet.{' '}
-        <Link to="/roles/editor" className="text-beetroot underline underline-offset-4">
-          Create the first one
-        </Link>
-        .
+      <div className="mt-8 border border-dashed border-black/25 px-6 py-12 text-center">
+        <p className="text-black/60">No custom roles in this organization yet.</p>
+        <ButtonLink to={NEW_ROLE_PATH} className="mt-5">
+          Create the first role
+        </ButtonLink>
       </div>
     );
   }

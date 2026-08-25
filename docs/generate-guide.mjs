@@ -229,13 +229,30 @@ async function main() {
   });
 
   // 9. Permission grid sections — captured as an element so the numbered
-  //    section headings are actually in frame.
+  //    section headings and their bulk actions are actually in frame.
   await page.evaluate(() => {
     const sections = [...document.querySelectorAll('main section')];
     // Keep one section only — a taller figure would split across pages.
     sections.slice(1).forEach((s) => s.remove());
   });
   await shoot(page, '09-permission-sections', { delay: 400, selector: 'main > div' });
+  await page.reload({ waitUntil: 'networkidle0' });
+  await settle(700);
+
+  // 9b. A section after Grant all, showing every box ticked.
+  await page.evaluate(() => {
+    const sections = [...document.querySelectorAll('main section')];
+    const target = sections.find((s) => /Audiences & Activation/.test(s.textContent ?? ''));
+    const grantAll = [...(target?.querySelectorAll('button') ?? [])].find((b) =>
+      /grant all/i.test(b.textContent ?? ''),
+    );
+    grantAll?.click();
+    sections.filter((s) => s !== target).forEach((s) => s.remove());
+    // Trim to the first feature group so the figure stays a readable size.
+    const groups = [...(target?.querySelectorAll('fieldset') ?? [])];
+    groups.slice(2).forEach((g) => g.remove());
+  });
+  await shoot(page, '09b-grant-all', { delay: 400, selector: 'main > div' });
   await page.reload({ waitUntil: 'networkidle0' });
   await settle(700);
 

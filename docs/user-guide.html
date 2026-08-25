@@ -565,7 +565,11 @@ npm run dev</pre>
         <figcaption>Roles — every custom role in the organization</figcaption>
       </figure>
 
-      <p>Select any role name to open it in the editor, where every permission it grants is listed.</p>
+      <p>
+        Select any role name to open it in the editor, where every permission it grants is listed.
+        <strong>New role</strong>, beside the environment picker, opens the editor empty — you never
+        have to enter an existing role to start a new one.
+      </p>
 
       <figure>
         <img src="images/07-role-editor.png" alt="Role editor showing a selected role" />
@@ -608,6 +612,28 @@ npm run dev</pre>
         <figcaption>Each permission states what it allows</figcaption>
       </figure>
 
+      <h3>Granting a whole section at once</h3>
+      <p>
+        Each section header carries <strong>Grant all</strong> and <strong>Remove all</strong>.
+        Grant all ticks every permission in that section; Remove all clears them. Both act on that
+        section only — the rest of the role is untouched.
+      </p>
+
+      <figure>
+        <img src="images/09b-grant-all.png" alt="A section after choosing Grant all" />
+        <figcaption>Grant all — every permission in the section, ticked</figcaption>
+      </figure>
+
+      <div class="callout">
+        <span class="label">Grant all vs. clicking boxes yourself</span>
+        <p>
+          Grant all is literal: View, Edit, and Full access all end up ticked, which is redundant
+          but is exactly what you asked for and exactly what the diff will show. Ticking boxes
+          individually behaves differently — there, choosing Full access clears the narrower
+          options for that feature, since it already covers them.
+        </p>
+      </div>
+
       <h3>Two things to know about the grid</h3>
       <p>
         <strong>Core access is always included.</strong> Every mParticle role can log in and view
@@ -633,8 +659,8 @@ npm run dev</pre>
       <h2>Creating and editing a role</h2>
 
       <p>
-        Use the <strong>Role</strong> dropdown to edit an existing role, or <strong>New role</strong>
-        to start a blank one.
+        Start from <strong>New role</strong> — either on the Roles screen or here in the editor —
+        or pick an existing role from the <strong>Role</strong> dropdown to edit it.
       </p>
 
       <figure>
@@ -645,14 +671,14 @@ npm run dev</pre>
       <ol class="steps">
         <li>Give the role a <strong>name</strong> (up to 64 characters) and, for a new role, a <strong>Role ID</strong> — a permanent identifier using letters, numbers, dots, dashes, or underscores.</li>
         <li>Add a <strong>description</strong> (up to 256 characters). Say who the role is for; it's the only context the next person gets.</li>
-        <li>Tick the permissions. Within a feature, "Full access" replaces the narrower options automatically.</li>
+        <li>Tick the permissions, or use a section's <strong>Grant all</strong>. Every role needs at least one permission beyond core access.</li>
         <li>Choose <strong>Review changes</strong>.</li>
       </ol>
 
       <p>
-        Character counts sit under each field and turn Beetroot if you go over the limit. The
-        Role ID of an existing role can't be edited — changing it would delete that role and create
-        a different one.
+        Character counts sit under each field and turn Beetroot if you go over the limit. Names
+        must be unique in the organization, and the Role ID of an existing role can't be edited —
+        changing it would delete that role and create a different one.
       </p>
 
       <h3>The diff gate</h3>

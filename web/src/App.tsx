@@ -2,7 +2,7 @@ import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 
 import { useLockVault, useVaultStatus } from './api/vault';
 import { Button } from './components/ui/Button';
-import { MParticleLogo } from './components/ui/MParticleLogo';
+import { AdobeLogo } from './components/ui/AdobeLogo';
 import { EnvironmentsPage } from './pages/EnvironmentsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { RoleEditorPage } from './pages/RoleEditorPage';
@@ -48,9 +48,9 @@ function AppHeader() {
     <header className="bg-wine text-white">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-10 gap-y-4 px-6 py-5">
         <div className="flex items-center gap-3">
-          <MParticleLogo className="h-6 w-auto text-white" />
+          <AdobeLogo className="h-6 w-auto text-white" />
           <span className="border-l border-white/25 pl-3 font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
-            Custom Roles
+            Custom Roles Manager
           </span>
         </div>
         <nav className="flex items-center gap-6">
@@ -87,7 +87,7 @@ function ServerDownNotice({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6">
       <div className="w-full max-w-md">
-        <MParticleLogo className="mb-10 h-7 w-auto text-black" />
+        <AdobeLogo className="mb-10 h-7 w-auto text-black" />
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-beetroot">
           Not connected
         </p>

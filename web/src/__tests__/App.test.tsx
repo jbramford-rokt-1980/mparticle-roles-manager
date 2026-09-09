@@ -8,6 +8,20 @@ import { mswServer } from '../test/mswServer';
 import { renderWithProviders } from '../test/renderWithProviders';
 
 describe('App', () => {
+  it('presents the demo as Adobe Custom Roles Manager', async () => {
+    const { fixtureEnv, fixtureManifest } = await import('../test/fixtures');
+    mswServer.use(
+      http.get('/api/vault/status', () => HttpResponse.json({ status: 'unlocked' })),
+      http.get('/api/environments', () => HttpResponse.json([fixtureEnv])),
+      http.get('/api/environments/env-1/manifest', () => HttpResponse.json(fixtureManifest)),
+    );
+
+    renderWithProviders(<App />, { initialEntries: ['/roles'] });
+
+    expect(await screen.findByLabelText('Adobe')).toBeInTheDocument();
+    expect(screen.getByText('Custom Roles Manager')).toBeInTheDocument();
+  });
+
   it('shows a server-down notice when the local proxy is unreachable', async () => {
     mswServer.use(
       http.get('/api/vault/status', () => HttpResponse.json({}, { status: 500 })),

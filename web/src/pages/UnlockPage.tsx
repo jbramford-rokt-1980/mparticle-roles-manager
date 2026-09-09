@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { isApiClientError } from '../api/client';
 import { useInitVault, useUnlockVault, useVaultStatus } from '../api/vault';
+import { AdobeLogo } from '../components/ui/AdobeLogo';
 import { Button } from '../components/ui/Button';
 import { ConnectorMark } from '../components/ui/ConnectorMark';
 import { Field } from '../components/ui/Field';
-import { MParticleLogo } from '../components/ui/MParticleLogo';
 
 export function UnlockPage() {
   const { data } = useVaultStatus();
@@ -15,10 +15,10 @@ export function UnlockPage() {
   return (
     <div className="flex min-h-screen">
       <aside className="hidden w-2/5 flex-col justify-between bg-wine p-12 text-white lg:flex">
-        <MParticleLogo className="h-7 w-auto text-white" />
+        <AdobeLogo className="h-7 w-auto text-white" />
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/50">
-            Custom Roles
+            Custom Roles Manager
           </p>
           <p className="mt-4 max-w-sm text-2xl font-medium leading-snug tracking-tight">
             See exactly what every role grants, and change it without guesswork.
@@ -32,7 +32,7 @@ export function UnlockPage() {
 
       <div className="flex flex-1 items-center justify-center px-6 py-16">
         <div className="w-full max-w-md">
-          <MParticleLogo className="mb-10 h-7 w-auto text-black lg:hidden" />
+          <AdobeLogo className="mb-10 h-7 w-auto text-black lg:hidden" />
           {data.status === 'uninitialized' ? <CreateVaultForm /> : <UnlockForm />}
         </div>
       </div>

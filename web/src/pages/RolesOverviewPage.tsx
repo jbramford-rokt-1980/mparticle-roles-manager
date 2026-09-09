@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { MAX_ROLES_PER_ORG, type Manifest } from '@roles/shared';
+import { MAX_ROLES_PER_ORG, type Manifest, type Role } from '@roles/shared';
 
 import { useManifest } from '../api/roles';
 import { EnvSwitcher } from '../components/EnvSwitcher';
@@ -10,6 +10,10 @@ import { useSelectedEnv } from '../state/SelectedEnvContext';
 
 /** The editor opens blank when no role is named in the query string. */
 const NEW_ROLE_PATH = '/roles/editor';
+
+function permissionCount(role: Role) {
+  return role.tasks.length;
+}
 
 export function RolesOverviewPage() {
   const { selected, environments, isLoading: envsLoading } = useSelectedEnv();
@@ -121,7 +125,7 @@ function RolesTable({ manifest }: { manifest: Manifest }) {
               <td className="py-3 pr-4 text-[15px] leading-snug text-black/70">
                 {role.description}
               </td>
-              <td className="py-3 text-right font-mono text-[13px]">{role.tasks.length}</td>
+              <td className="py-3 text-right font-mono text-[13px]">{permissionCount(role)}</td>
             </tr>
           ))}
       </tbody>

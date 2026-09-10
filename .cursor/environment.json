@@ -4,8 +4,12 @@
   "terminals": [
     {
       "name": "dev (mock mParticle)",
-      "command": "npm run dev:mock"
+      "command": "npm run dev:mock",
+      "description": "Vite UI on 5173, API server on 8931, mParticle mocked"
     }
   ],
-  "ports": [5173, 8931]
+  "ports": [
+    { "name": "web", "port": 5173 },
+    { "name": "api", "port": 8931 }
+  ]
 }

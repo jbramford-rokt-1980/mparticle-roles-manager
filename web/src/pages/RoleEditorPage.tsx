@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import {
-  CORE_TASK,
   DESCRIPTION_MAX,
   NAME_MAX,
   ROLE_ID_MAX,
   applyTaskGrant,
+  grantedTaskIds,
   validateRole,
   type MutationIntent,
   type Role,
@@ -32,7 +32,8 @@ export function RoleEditorPage() {
   const { data: tasks } = useTasks(selected?.id);
   const [searchParams] = useSearchParams();
 
-  const [roleValue, setRoleValue] = useState(searchParams.get('role') ?? NEW_ROLE_VALUE);
+  const requestedRole = searchParams.get('role') ?? NEW_ROLE_VALUE;
+  const [roleValue, setRoleValue] = useState(requestedRole);
   const creating = roleValue === NEW_ROLE_VALUE;
   const activeRole: Role | undefined = useMemo(
     () => manifest?.roles.find((r) => r.role_id === roleValue),
@@ -52,13 +53,19 @@ export function RoleEditorPage() {
   const [conflictNote, setConflictNote] = useState(false);
   const [savedNote, setSavedNote] = useState(false);
 
+  useEffect(() => {
+    setRoleValue(requestedRole);
+    setPlanResult(null);
+    setSavedNote(false);
+  }, [requestedRole]);
+
   // Re-seed the form whenever a different role is picked (or its data loads).
   useEffect(() => {
     if (activeRole) {
       setName(activeRole.name);
       setRoleId(activeRole.role_id);
       setDescription(activeRole.description ?? '');
-      setGranted(new Set(activeRole.tasks.map((t) => t.task_id).filter((t) => t !== CORE_TASK)));
+      setGranted(new Set(grantedTaskIds(activeRole)));
     } else {
       setName('');
       setRoleId('');

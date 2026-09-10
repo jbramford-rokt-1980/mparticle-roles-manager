@@ -1,0 +1,11 @@
+{
+  "name": "mParticle Custom Roles Manager",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev (mock mParticle)",
+      "command": "npm run dev:mock"
+    }
+  ],
+  "ports": [5173, 8931]
+}

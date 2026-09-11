@@ -4,6 +4,7 @@ export * from './pods';
 export * from './errorCodes';
 export * from './groupTasks';
 export * from './taskGrants';
+export * from './roleTasks';
 export * from './taskHelp';
 export * from './diffManifests';
 export * from './validateRole';

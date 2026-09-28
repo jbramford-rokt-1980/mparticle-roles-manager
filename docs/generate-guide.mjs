@@ -9,6 +9,7 @@
  *
  * Requires the mock dev server on http://localhost:5173 (see package.json).
  */
+import { existsSync } from 'node:fs';
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,9 +20,26 @@ const DOCS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const IMAGES_DIR = path.join(DOCS_DIR, 'images');
 const APP = process.env.GUIDE_APP_URL ?? 'http://localhost:5174';
 const PASSPHRASE = 'guide-demo-passphrase';
-const CHROME =
-  process.env.CHROME_PATH ??
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+
+/** puppeteer-core ships no browser, so find the one already installed. */
+function findChrome() {
+  if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
+  const candidates = [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium',
+  ];
+  const found = candidates.find((candidate) => existsSync(candidate));
+  if (!found) {
+    throw new Error(
+      `No Chrome found. Install Google Chrome or set CHROME_PATH. Looked in:\n  ${candidates.join('\n  ')}`,
+    );
+  }
+  return found;
+}
+
+const CHROME = findChrome();
 
 const VIEWPORT = { width: 1280, height: 860, deviceScaleFactor: 2 };
 

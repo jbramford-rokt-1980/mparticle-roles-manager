@@ -4,13 +4,19 @@
   "start": "true",
   "terminals": [
     {
-      "name": "dev (mock mParticle)",
-      "command": "npm run dev:mock",
-      "description": "Vite UI on 5173, API server on 8931, mParticle mocked"
+      "name": "api (mock mParticle)",
+      "command": "MOCK_MPARTICLE=1 npm run dev -w server",
+      "description": "Fastify proxy on 127.0.0.1:8931 against the in-memory fake mParticle API — no credentials or vault secrets required."
+    },
+    {
+      "name": "web",
+      "command": "npm run dev -w web -- --host 127.0.0.1",
+      "description": "Vite UI on http://127.0.0.1:5173, proxying /api to the server terminal. --host is required because Vite's default 'localhost' binds IPv6 only here, which breaks port forwarding."
     }
   ],
   "ports": [
     { "name": "web", "port": 5173 },
     { "name": "api", "port": 8931 }
-  ]
+  ],
+  "chromeExecutablePath": "/usr/bin/google-chrome-stable"
 }

@@ -1,7 +1,12 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const ORIGINAL_ENV = { ...process.env };
+
+// Mirrors the resolution in ../config: two levels up from server/src. Derived
+// rather than hardcoded so the suite passes wherever the repo is checked out.
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 async function loadConfig() {
   vi.resetModules();
@@ -20,7 +25,7 @@ describe('config.dataDir', () => {
 
   it('defaults to <repo>/data', async () => {
     const config = await loadConfig();
-    expect(config.dataDir.endsWith(path.join('mparticle-roles-manager', 'data'))).toBe(true);
+    expect(config.dataDir).toBe(path.join(repoRoot, 'data'));
   });
 
   it('resolves a relative DATA_DIR against the repo root, not the working directory', async () => {
@@ -32,7 +37,7 @@ describe('config.dataDir', () => {
     process.env.DATA_DIR = './.guide-data';
     const config = await loadConfig();
 
-    expect(config.dataDir.endsWith(path.join('mparticle-roles-manager', '.guide-data'))).toBe(true);
+    expect(config.dataDir).toBe(path.join(repoRoot, '.guide-data'));
     expect(config.dataDir).not.toContain(`${path.sep}server${path.sep}`);
   });
 

@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { mswServer } from '../../test/mswServer';
@@ -23,6 +24,34 @@ function renderEditor() {
     <SelectedEnvProvider>
       <RoleEditorPage />
     </SelectedEnvProvider>,
+  );
+}
+
+function QueryNavButtons() {
+  const navigate = useNavigate();
+  return (
+    <div>
+      <button type="button" onClick={() => navigate('/roles/editor?role=ad-sales-analyst')}>
+        Go analyst
+      </button>
+      <button type="button" onClick={() => navigate('/roles/editor?role=marketing-manager')}>
+        Go manager
+      </button>
+      <button type="button" onClick={() => navigate('/roles/editor')}>
+        Go new role
+      </button>
+    </div>
+  );
+}
+
+function renderEditorRouter(initialEntries: string[]) {
+  return renderWithProviders(
+    <SelectedEnvProvider>
+      <Routes>
+        <Route path="/roles/editor" element={<><QueryNavButtons /><RoleEditorPage /></>} />
+      </Routes>
+    </SelectedEnvProvider>,
+    { initialEntries },
   );
 }
 
@@ -171,5 +200,39 @@ describe('RoleEditorPage', () => {
       proposedRoles: planResponse.proposedRoles,
       baseVersion: 4,
     });
+  });
+
+  it('updates displayed role when the role query changes while mounted', async () => {
+    givenApi();
+    renderEditorRouter(['/roles/editor?role=ad-sales-analyst']);
+    const user = userEvent.setup();
+
+    const name = (await screen.findByLabelText(/^name/i)) as HTMLInputElement;
+    expect(name.value).toBe('Ad Sales Analyst');
+    expect(screen.getByRole('checkbox', { name: /audiences — view/i })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).not.toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: /go manager/i }));
+
+    expect((await screen.findByLabelText(/^name/i)).value).toBe('Marketing Manager');
+    expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).toBeChecked();
+  });
+
+  it('resets to blank new-role state when role query is removed while mounted', async () => {
+    givenApi();
+    renderEditorRouter(['/roles/editor?role=marketing-manager']);
+    const user = userEvent.setup();
+
+    expect(((await screen.findByLabelText(/^name/i)) as HTMLInputElement).value).toBe(
+      'Marketing Manager',
+    );
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).toBeChecked();
+
+    await user.click(screen.getByRole('button', { name: /go new role/i }));
+
+    expect((await screen.findByLabelText(/^name/i)).value).toBe('');
+    expect(screen.getByRole('checkbox', { name: /audiences — full access/i })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /data plans — view/i })).not.toBeChecked();
   });
 });

@@ -32,7 +32,8 @@ export function RoleEditorPage() {
   const { data: tasks } = useTasks(selected?.id);
   const [searchParams] = useSearchParams();
 
-  const [roleValue, setRoleValue] = useState(searchParams.get('role') ?? NEW_ROLE_VALUE);
+  const requestedRole = searchParams.get('role') ?? NEW_ROLE_VALUE;
+  const [roleValue, setRoleValue] = useState(requestedRole);
   const creating = roleValue === NEW_ROLE_VALUE;
   const activeRole: Role | undefined = useMemo(
     () => manifest?.roles.find((r) => r.role_id === roleValue),
@@ -51,6 +52,10 @@ export function RoleEditorPage() {
   const [pendingIntent, setPendingIntent] = useState<MutationIntent | null>(null);
   const [conflictNote, setConflictNote] = useState(false);
   const [savedNote, setSavedNote] = useState(false);
+
+  useEffect(() => {
+    setRoleValue(requestedRole);
+  }, [requestedRole]);
 
   // Re-seed the form whenever a different role is picked (or its data loads).
   useEffect(() => {

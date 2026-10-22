@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 
@@ -27,8 +27,13 @@ describe('RolesOverviewPage', () => {
     expect(await screen.findByText('Ad Sales Analyst')).toBeInTheDocument();
     expect(screen.getByText('ad-sales-analyst')).toBeInTheDocument();
     expect(screen.getByText('Read-only audiences')).toBeInTheDocument();
-    // Marketing Manager grants audiences:* + data_plans:view + core = 3 permissions
     expect(screen.getByText('Marketing Manager')).toBeInTheDocument();
+
+    const analystRow = screen.getByRole('row', { name: /ad sales analyst/i });
+    const managerRow = screen.getByRole('row', { name: /marketing manager/i });
+    // Core access is always implicit and excluded from the numeric count.
+    expect(within(analystRow).getByText('1')).toBeInTheDocument();
+    expect(within(managerRow).getByText('2')).toBeInTheDocument();
   });
 
   it('offers a New role action that opens the editor with nothing selected', async () => {

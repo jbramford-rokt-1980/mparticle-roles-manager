@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-import { MAX_ROLES_PER_ORG, type Manifest } from '@roles/shared';
+import { CORE_TASK, MAX_ROLES_PER_ORG, type Manifest } from '@roles/shared';
 
 import { useManifest } from '../api/roles';
 import { EnvSwitcher } from '../components/EnvSwitcher';
@@ -121,7 +121,9 @@ function RolesTable({ manifest }: { manifest: Manifest }) {
               <td className="py-3 pr-4 text-[15px] leading-snug text-black/70">
                 {role.description}
               </td>
-              <td className="py-3 text-right font-mono text-[13px]">{role.tasks.length}</td>
+              <td className="py-3 text-right font-mono text-[13px]">
+                {role.tasks.filter((task) => task.task_id !== CORE_TASK).length}
+              </td>
             </tr>
           ))}
       </tbody>

@@ -1,4 +1,5 @@
-import { CORE_TASK, DESCRIPTION_MAX, MAX_ROLES_PER_ORG, NAME_MAX, ROLE_ID_MAX } from './limits';
+import { DESCRIPTION_MAX, MAX_ROLES_PER_ORG, NAME_MAX, ROLE_ID_MAX } from './limits';
+import { grantedTaskIds } from './roleTasks';
 import type { Role } from './types';
 
 export interface RoleValidationError {
@@ -72,7 +73,7 @@ export function validateRole(role: Role, context: RoleValidationContext): RoleVa
     });
   }
 
-  const grantedTasks = role.tasks.map((t) => t.task_id).filter((id) => id !== CORE_TASK);
+  const grantedTasks = grantedTaskIds(role);
 
   if (grantedTasks.length === 0) {
     errors.push({

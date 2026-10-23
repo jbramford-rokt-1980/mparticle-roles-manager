@@ -1,5 +1,10 @@
 import type { Role, TaskDef } from '@roles/shared';
-import { CORE_TASK, IMPLICIT_ROLE_CAPABILITIES, taskHelp, taskLabel } from '@roles/shared';
+import {
+  IMPLICIT_ROLE_CAPABILITIES,
+  grantedTaskIds,
+  taskHelp,
+  taskLabel,
+} from '@roles/shared';
 
 export interface RoleGrantsSummaryProps {
   role: Role;
@@ -9,10 +14,7 @@ export interface RoleGrantsSummaryProps {
 /** Plain-language answer to "what does this role give access to?". */
 export function RoleGrantsSummary({ role, tasks }: RoleGrantsSummaryProps) {
   const byId = new Map(tasks.map((t) => [t.task_id, t]));
-  const granted = role.tasks
-    .map((t) => t.task_id)
-    .filter((id) => id !== CORE_TASK)
-    .sort();
+  const granted = grantedTaskIds(role).sort();
 
   return (
     <details className="border border-black/15 bg-wine-tint/30">
